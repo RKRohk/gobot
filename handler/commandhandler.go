@@ -3,7 +3,7 @@ package handler
 import (
 	"strings"
 
-	helpers "../helpers"
+	"github.com/rkrohk/gobot/helpers"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
 )

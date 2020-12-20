@@ -1,4 +1,4 @@
-module main
+module github.com/rkrohk/gobot
 
 go 1.15
 

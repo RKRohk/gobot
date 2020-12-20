@@ -4,7 +4,7 @@ import (
 	"log"
 	"os"
 
-	"./handler"
+	"github.com/rkrohk/gobot/handler"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
 )
