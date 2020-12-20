@@ -32,7 +32,13 @@ func Commandhandler(bot *tgbotapi.BotAPI, update tgbotapi.Update) {
 		{
 			currentUser := update.Message.From.FirstName
 			replyToMessage := update.Message.ReplyToMessage
-			victimUser := replyToMessage.From.FirstName
+			victimUser := ""
+			if replyToMessage != nil {
+				victimUser = replyToMessage.From.FirstName
+			} else {
+				messageWithoutCommand := strings.Replace(update.Message.Text, "/slap ", "", 1)
+				victimUser = messageWithoutCommand
+			}
 			msg := tgbotapi.NewMessage(update.Message.Chat.ID, helpers.Slap(currentUser, victimUser))
 			msg.ReplyToMessageID = update.Message.ReplyToMessage.MessageID
 			go bot.Send(msg)
