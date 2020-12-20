@@ -1,9 +1,8 @@
 FROM golang
 
-WORKDIR /go/src/app
+WORKDIR /go/src/github.com/rkrohk/gobot/
 
 COPY . .
 
-RUN go get ./...
 
-CMD [ "go","run","bot.go" ]
+CMD [ "while true; do foo; sleep 2; done" ]

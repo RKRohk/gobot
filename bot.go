@@ -14,6 +14,7 @@ func main() {
 	bot, err := tgbotapi.NewBotAPI(token)
 
 	if err != nil {
+		log.Panic(token)
 		log.Panic(err)
 	}
 
