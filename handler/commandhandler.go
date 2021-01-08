@@ -48,5 +48,8 @@ func Commandhandler(bot *tgbotapi.BotAPI, update tgbotapi.Update) {
 
 	case "timer":
 		go helpers.Timer(bot, &update)
+
+	case "remind":
+		go helpers.Remind(bot, &update)
 	}
 }
