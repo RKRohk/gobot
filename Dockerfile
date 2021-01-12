@@ -1,8 +1,12 @@
 FROM golang
 
-WORKDIR /go/src/github.com/rkrohk/gobot/
+WORKDIR /app
+
+COPY go.* ./
 
 COPY . .
 
+RUN go build
 
-CMD [ "while true; do foo; sleep 2; done" ]
+
+CMD go run bot.go
