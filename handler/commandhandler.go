@@ -42,7 +42,7 @@ func Commandhandler(bot *tgbotapi.BotAPI, update tgbotapi.Update) {
 				victimUser = messageWithoutCommand
 			}
 			msg.Text = helpers.Slap(currentUser, victimUser)
-
+			helpers.GetSlapStrings()
 			go bot.Send(msg)
 		}
 
@@ -51,5 +51,20 @@ func Commandhandler(bot *tgbotapi.BotAPI, update tgbotapi.Update) {
 
 	case "remind":
 		go helpers.Remind(bot, &update)
+
+	case "addslap":
+		{
+			message := update.Message.Text
+
+			//Add slap string to databse
+			slapString := strings.Replace(message, "/addslap ", "", 1)
+			go helpers.AddSlapToDB(slapString)
+
+			//Reply to the user. Does not handle errors yet
+			//TODO() add error message
+			replyMessage := tgbotapi.NewMessage(update.Message.Chat.ID, "Added new slap response")
+			go bot.Send(replyMessage)
+		}
 	}
+
 }
