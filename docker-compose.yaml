@@ -1,0 +1,10 @@
+version: "3"
+services:
+  bot:
+    image: rkrohk/gobot
+    env_file: "./.env"
+
+  mongo:
+    image: mongo
+    ports:
+      - 27017:27017

@@ -42,7 +42,6 @@ func Commandhandler(bot *tgbotapi.BotAPI, update tgbotapi.Update) {
 				victimUser = messageWithoutCommand
 			}
 			msg.Text = helpers.Slap(currentUser, victimUser)
-			helpers.GetSlapStrings()
 			go bot.Send(msg)
 		}
 
