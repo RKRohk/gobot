@@ -11,15 +11,9 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-var client *mongo.Client
-var err error
-
 //InitDb Initializes the database
-func InitDb() {
-	client, err = mongo.NewClient(options.Client().ApplyURI("mongodb://mongo:27017"))
-	if err != nil {
-		log.Fatal("Error connecting to MongoDB\nExiting....")
-	}
+func newClient() (*mongo.Client, error) {
+	return mongo.NewClient(options.Client().ApplyURI("mongodb://mongo:27017"))
 }
 
 //SlapString is this
@@ -30,6 +24,7 @@ type SlapString struct {
 
 //AddSlapToDB adds a slap string format to the mongodb database
 func AddSlapToDB(slapString string) {
+	client, err := newClient()
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 	err = client.Connect(ctx)
@@ -51,6 +46,7 @@ func AddSlapToDB(slapString string) {
 
 //GetSlapStrings gets a random slap string from document
 func GetSlapStrings() (string, error) {
+	client, err := newClient()
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 	err = client.Connect(ctx)
