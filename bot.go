@@ -5,6 +5,7 @@ import (
 	"os"
 
 	"github.com/rkrohk/gobot/handler"
+	"github.com/rkrohk/gobot/helpers"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
 )
@@ -17,6 +18,9 @@ func main() {
 		log.Panic(token)
 		log.Panic(err)
 	}
+
+	//Initializing database
+	helpers.InitDb()
 
 	bot.Debug = false
 

@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"fmt"
 	"strings"
 
 	"github.com/rkrohk/gobot/helpers"
@@ -12,6 +13,12 @@ import (
 func Commandhandler(bot *tgbotapi.BotAPI, update tgbotapi.Update) {
 
 	switch update.Message.Command() {
+	case "id":
+		{
+			msg := tgbotapi.NewMessage(update.Message.Chat.ID, fmt.Sprintf("`%d`", update.Message.Chat.ID))
+			msg.ParseMode = "markdown"
+			go bot.Send(msg)
+		}
 	case "help":
 		{
 			msg := tgbotapi.NewMessage(update.Message.Chat.ID, "")
