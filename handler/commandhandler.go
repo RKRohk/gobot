@@ -71,6 +71,10 @@ func Commandhandler(bot *tgbotapi.BotAPI, update tgbotapi.Update) {
 			replyMessage := tgbotapi.NewMessage(update.Message.Chat.ID, "Added new slap response")
 			go bot.Send(replyMessage)
 		}
+	case "showslaps":
+		{
+			go helpers.ShowSlapStrings(bot, &update)
+		}
 	}
 
 }

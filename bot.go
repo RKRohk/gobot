@@ -38,6 +38,7 @@ func main() {
 
 		if query := update.CallbackQuery; query != nil {
 			log.Printf("CallbackQuery %s", query.Data)
+			handler.CallbackQueryHandler(bot, &update)
 		}
 
 		if update.InlineQuery != nil {

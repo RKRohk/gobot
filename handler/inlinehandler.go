@@ -31,6 +31,8 @@ func Inlinehandler(bot *tgbotapi.BotAPI, update *tgbotapi.Update) {
 
 	article := tgbotapi.NewInlineQueryResultArticleHTML("1", "Shrug", fmt.Sprintf("¯\\_(ツ)_/¯"))
 	slapArticle := tgbotapi.NewInlineQueryResultArticleMarkdown("2", "Slap", inlineSlap(update))
+	article.Description = "¯\\_(ツ)_/¯"
+	slapArticle.Description = "Write the name of the person you want to slap"
 
 	inlineConf := tgbotapi.InlineConfig{
 		InlineQueryID: update.InlineQuery.ID,
