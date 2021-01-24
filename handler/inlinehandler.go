@@ -23,11 +23,6 @@ func inlineSlap(update *tgbotapi.Update) string {
 
 //Inlinehandler handles inline queries
 func Inlinehandler(bot *tgbotapi.BotAPI, update *tgbotapi.Update) {
-	message := update.InlineQuery.Query
-
-	if message == "" || message == " " {
-		return
-	}
 
 	article := tgbotapi.NewInlineQueryResultArticleHTML("1", "Shrug", fmt.Sprintf("¯\\_(ツ)_/¯"))
 	slapArticle := tgbotapi.NewInlineQueryResultArticleMarkdown("2", "Slap", inlineSlap(update))
