@@ -54,3 +54,37 @@ func DeleteSlapString(bot *tgbotapi.BotAPI, update *tgbotapi.Update, documentID 
 	editedMessage.ReplyMarkup = nil
 
 }
+
+//AddSlapSticker adds slap sticker to db
+func AddSlapSticker(bot *tgbotapi.BotAPI, update *tgbotapi.Update) {
+	repliedToMessage := update.Message.ReplyToMessage
+	sticker := repliedToMessage.Sticker
+	if sticker == nil {
+		//Handle error
+		bot.Send(tgbotapi.NewMessage(update.Message.Chat.ID, "Please reply to a message that is a sticker"))
+		return
+	}
+	err := AddSlapStickerToDb(sticker.FileID)
+	if err != nil {
+		bot.Send(tgbotapi.NewMessage(update.Message.Chat.ID, "Error adding sticker"))
+	} else {
+		bot.Send(tgbotapi.NewMessage(update.Message.Chat.ID, "Added sticker"))
+	}
+
+}
+
+//SlapWithSticker slaps a person with a sticker
+func SlapWithSticker(bot *tgbotapi.BotAPI, update *tgbotapi.Update) {
+	repliedToMessage := update.Message.ReplyToMessage
+	if repliedToMessage == nil {
+		return
+	}
+	fileID, err := GetSlapStickers()
+	if err != nil {
+		bot.Send(tgbotapi.NewMessage(update.Message.Chat.ID, "I don't feel like slapping today"))
+	} else {
+		sticker := tgbotapi.NewStickerShare(update.Message.Chat.ID, fileID)
+		sticker.ReplyToMessageID = repliedToMessage.MessageID
+		bot.Send(sticker)
+	}
+}

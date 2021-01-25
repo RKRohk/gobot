@@ -75,6 +75,14 @@ func Commandhandler(bot *tgbotapi.BotAPI, update tgbotapi.Update) {
 		{
 			go helpers.ShowSlapStrings(bot, &update)
 		}
+	case "addslapsticker":
+		{
+			go helpers.AddSlapSticker(bot, &update)
+		}
+	case "stickerslap":
+		{
+			go helpers.SlapWithSticker(bot, &update)
+		}
 	}
 
 }
