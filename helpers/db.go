@@ -206,7 +206,7 @@ func GetSlapStickers() (string, error) {
 	var result []SlapSticker
 
 	//Moving cursour
-	error := slapArr.All(ctx, result)
+	error := slapArr.All(ctx, &result)
 
 	if error != nil {
 		log.Panic(error)

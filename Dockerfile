@@ -1,12 +1,12 @@
-FROM golang
+FROM golang as buld
 
 WORKDIR /app
 
-COPY go.* ./
+COPY go.mod .
+COPY go.sum .
+
+RUN go mod download
 
 COPY . .
-
-RUN go build
-
 
 CMD go run bot.go
