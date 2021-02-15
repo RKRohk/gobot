@@ -14,7 +14,7 @@ import (
 
 //InitDb Initializes the database
 func newClient() (*mongo.Client, error) {
-	return mongo.NewClient(options.Client().ApplyURI("mongodb://mongo:27017"))
+	return mongo.NewClient(options.Client().ApplyURI("mongodb+srv://rohan:ubuntu@cluster0.kqbhi.mongodb.net/gobot?retryWrites=true&w=majority"))
 }
 
 //SlapString is this

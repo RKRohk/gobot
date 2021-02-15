@@ -83,6 +83,15 @@ func Commandhandler(bot *tgbotapi.BotAPI, update tgbotapi.Update) {
 		{
 			go helpers.SlapWithSticker(bot, &update)
 		}
+
+	case "save":
+		{
+			go helpers.SaveNote(bot, &update)
+		}
+	case "get":
+		{
+			go helpers.GetNotes(bot, &update)
+		}
 	}
 
 }
