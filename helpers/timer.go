@@ -2,6 +2,8 @@ package helpers
 
 import (
 	"fmt"
+	"log"
+	"regexp"
 	"strings"
 	"time"
 
@@ -10,9 +12,7 @@ import (
 
 //ParseDate parses string to date
 func ParseDate(inputString string) (time.Time, error) {
-	format := "2006-01-02 15:04 MST"
-	fmt.Println(inputString)
-
+	format := "02/01/2006 3:04 PM MST"
 	date, err := time.Parse(format, inputString)
 	if err != nil {
 		fmt.Println("Error")
@@ -27,47 +27,40 @@ func ParseDate(inputString string) (time.Time, error) {
 
 //Timer starts a timer
 func Timer(bot *tgbotapi.BotAPI, update *tgbotapi.Update) {
-	//Removes command from message
-	timeStr := strings.Replace(update.Message.Text, "/timer ", "", 1)
-	//Removing whitespaces from message
-	timeStr = strings.Trim(timeStr, " ")
-	//Converting text to int with base 10
-	endTime, err := ParseDate(timeStr)
-	startTime := time.Now()
-	waitTimeFloat := endTime.Sub(startTime).Seconds()
-	waitTime := int(waitTimeFloat)
+	msg := update.Message
 
-	//If there is any error parsing the int, return
+	//Regex to extract time
+	reg := regexp.MustCompile("([0-9]{1,2})/([0-9]{1,2})/202([0-9]) ([1-2]?)([0-9]):([0-9]{2}) (A|P)M ([A-Z])ST")
+
+	remindTimeStr := reg.FindString(msg.Text)
+	fmt.Println("RemindTimeStr")
+	remindTimeParsed, err := ParseDate(remindTimeStr)
 	if err != nil {
-		fmt.Println(err)
+		log.Println(remindTimeStr)
+		log.Panic("Invalid Time")
 		return
 	}
 
-	//Sending first message
-	msg := tgbotapi.NewMessage(update.Message.Chat.ID, fmt.Sprintf("%s", "Starting Countdown"))
-	//Creating a new inline keyboard button for the "Cancel" operation
+	//Removing time and command from the message
+	remindMessage := reg.ReplaceAllString(msg.Text, "")
+	remindMessage = strings.Replace(remindMessage, "/timer", "", 1)
 
-	uuid := GenerateUUID()
-	button := tgbotapi.NewInlineKeyboardButtonData("Cancel", uuid)
-	buttons := make([]tgbotapi.InlineKeyboardButton, 1, 1)
-	buttons[0] = button
-	menu := tgbotapi.NewInlineKeyboardMarkup(buttons)
+	//Making and parsing the reply message
+	message := tgbotapi.NewMessage(update.Message.Chat.ID, fmt.Sprintf("Okay, I will remind you about:\n*%s*\n\nAfter `%s`", remindMessage, remindTimeStr))
+	message.ParseMode = "markdown"
+	message.ReplyToMessageID = update.Message.MessageID
+	waitTime := remindTimeParsed.Sub(time.Now())
 
-	//First message (This message has to be referenced for all editing operations)
-	sentMessage, err := bot.Send(msg)
-	sentMessage.Command()
-	for i := waitTime; i >= 0; i-- {
-		//First message is edited at every iteration of the loop
-		var editedMessage tgbotapi.EditMessageTextConfig
-
-		if i == 0 {
-			editedMessage = tgbotapi.NewEditMessageText(sentMessage.Chat.ID, sentMessage.MessageID, "Timer complete")
-		} else {
-			editedMessage = tgbotapi.NewEditMessageText(sentMessage.Chat.ID, sentMessage.MessageID, fmt.Sprintf("%d", i))
-			editedMessage.ReplyMarkup = &menu
-		}
-		go bot.Send(editedMessage)
-		//Sleep for one second
-		time.Sleep(time.Second)
+	//Checking if the date given is before current time
+	if waitTime < 0 {
+		message.Text = "I cannot remind you in the past"
+		bot.Send(message)
+		return
 	}
+	bot.Send(message)
+
+	//Bot sleeps till remind time
+	time.Sleep(waitTime)
+	message.Text = fmt.Sprintf("Yo here is your reminder\n*%s*", remindMessage)
+	bot.Send(message)
 }
