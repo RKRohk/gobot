@@ -100,7 +100,7 @@ func GetNotes(bot *tgbotapi.BotAPI, update *tgbotapi.Update) {
 
 //DeleteNote deletes a note
 func DeleteNote(bot *tgbotapi.BotAPI, update *tgbotapi.Update) {
-
+	//TODO() still in progress
 	repliedToDocument := update.Message.ReplyToMessage.Document
 	if repliedToDocument == nil {
 		//Handle null document
@@ -117,8 +117,10 @@ func DeleteNote(bot *tgbotapi.BotAPI, update *tgbotapi.Update) {
 		}
 	}()
 	notesCollection := client.Database("bot").Collection("notes")
-	_, err = notesCollection.DeleteOne(ctx, bson.M{"fileID": bson.D{{"$eq", repliedToDocument.FileID}}})
+	res, err := notesCollection.DeleteOne(ctx, bson.M{"fileID": bson.D{{"$eq", repliedToDocument.FileID}}})
 	if err != nil {
 		log.Panic(err)
+	} else {
+		log.Println(res)
 	}
 }

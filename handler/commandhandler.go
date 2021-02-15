@@ -92,6 +92,10 @@ func Commandhandler(bot *tgbotapi.BotAPI, update tgbotapi.Update) {
 		{
 			go helpers.GetNotes(bot, &update)
 		}
+	case "delnote":
+		{
+			go helpers.DeleteNote(bot, &update)
+		}
 	}
 
 }
