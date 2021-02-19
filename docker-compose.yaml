@@ -2,7 +2,8 @@ version: "3"
 services:
   bot:
     image: rkrohk/gobot:latest
-    env_file: "./.env"
+    env_file: "./.env.gobot"
+    restart: always
 
   mongo:
     image: mongo
@@ -11,4 +12,11 @@ services:
       - 27017:27017
     expose:
       - 27017
-    volumes: ~/mongo/data:/data/db
+    volumes:
+      - ~/mongo/data:/data/db
+
+  mongo-express:
+    image: mongo-express
+    environment:
+      - ME_CONFIG_MONGODB_SERVER=mongo
+      - ME_CONFIG_MONGODB_PORT=27017

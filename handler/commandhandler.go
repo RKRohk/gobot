@@ -96,6 +96,11 @@ func Commandhandler(bot *tgbotapi.BotAPI, update tgbotapi.Update) {
 		{
 			go helpers.DeleteNote(bot, &update)
 		}
+
+	case "pin":
+		{
+			go helpers.Pin(bot, &update)
+		}
 	}
 
 }
