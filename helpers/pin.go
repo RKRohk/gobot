@@ -11,7 +11,7 @@ import (
 func Pin(bot *tgbotapi.BotAPI, update *tgbotapi.Update) {
 	message := update.Message
 
-	silent := strings.Contains("silent", message.Text)
+	silent := strings.Contains(message.Text, "silent")
 
 	repliedToMessage := message.ReplyToMessage
 
