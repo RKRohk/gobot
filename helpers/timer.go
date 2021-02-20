@@ -19,8 +19,6 @@ func ParseDate(inputString string) (time.Time, error) {
 		fmt.Println(err)
 		return date, err
 	}
-	fmt.Println("Date is")
-	fmt.Println(date)
 	return date, nil
 
 }
@@ -33,11 +31,10 @@ func Timer(bot *tgbotapi.BotAPI, update *tgbotapi.Update) {
 	reg := regexp.MustCompile("([0-9]{1,2})/([0-9]{1,2})/202([0-9]) ([1-2]?)([0-9]):([0-9]{2}) (A|P)M ([A-Z])ST")
 
 	remindTimeStr := reg.FindString(msg.Text)
-	fmt.Println("RemindTimeStr")
 	remindTimeParsed, err := ParseDate(remindTimeStr)
 	if err != nil {
+		log.Println("Invalid time")
 		log.Println(remindTimeStr)
-		log.Panic("Invalid Time")
 		return
 	}
 
@@ -57,10 +54,14 @@ func Timer(bot *tgbotapi.BotAPI, update *tgbotapi.Update) {
 		bot.Send(message)
 		return
 	}
-	bot.Send(message)
+	sentMessage, err := bot.Send(message)
 
 	//Bot sleeps till remind time
 	time.Sleep(waitTime)
 	message.Text = fmt.Sprintf("Yo here is your reminder\n*%s*", remindMessage)
 	bot.Send(message)
+
+	//Deleting the previous message
+	deleteOldMessage := tgbotapi.NewDeleteMessage(sentMessage.Chat.ID, sentMessage.MessageID)
+	bot.Send(deleteOldMessage)
 }
