@@ -4,8 +4,10 @@ import (
 	"log"
 	"os"
 	"os/signal"
+	"strings"
 
 	"github.com/rkrohk/gobot/handler"
+	"github.com/rkrohk/gobot/helpers"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
 )
@@ -38,6 +40,12 @@ func main() {
 
 				if update.Message.Command() != "" {
 					handler.Commandhandler(bot, update)
+				}
+			}
+
+			if update.Message.Command() == "" && update.Message != nil {
+				if update.Message.Chat.IsPrivate() || strings.Contains(update.Message.Text, "Rohk") || (update.Message.ReplyToMessage != nil && update.Message.ReplyToMessage.From.FirstName == bot.Self.FirstName) {
+					helpers.GetMessage(bot, &update)
 				}
 			}
 
