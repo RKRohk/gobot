@@ -40,21 +40,15 @@ func main() {
 
 				if update.Message.Command() != "" {
 					handler.Commandhandler(bot, update)
+				} else if update.Message.Command() == "" && update.Message != nil {
+					if update.Message.Chat.IsPrivate() || strings.Contains(update.Message.Text, "Rohk") || (update.Message.ReplyToMessage != nil && update.Message.ReplyToMessage.From.FirstName == bot.Self.FirstName) {
+						helpers.GetMessage(bot, &update)
+					}
 				}
-			}
-
-			if update.Message.Command() == "" && update.Message != nil {
-				if update.Message.Chat.IsPrivate() || strings.Contains(update.Message.Text, "Rohk") || (update.Message.ReplyToMessage != nil && update.Message.ReplyToMessage.From.FirstName == bot.Self.FirstName) {
-					helpers.GetMessage(bot, &update)
-				}
-			}
-
-			if query := update.CallbackQuery; query != nil {
+			} else if query := update.CallbackQuery; query != nil {
 				log.Printf("CallbackQuery %s", query.Data)
 				handler.CallbackQueryHandler(bot, &update)
-			}
-
-			if update.InlineQuery != nil {
+			} else if update.InlineQuery != nil {
 				handler.Inlinehandler(bot, &update)
 			}
 
