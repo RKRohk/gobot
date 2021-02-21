@@ -15,7 +15,7 @@ type Message struct {
 
 //SendMessage sends a message to the bot to store
 func SendMessage(message string) {
-	base, err := url.Parse("http://chatbotapi:8000/setmessage")
+	base, err := url.Parse("http://chatbotapi/setmessage")
 	if err != nil {
 		log.Fatal("Invalid API URI")
 	}
@@ -41,7 +41,7 @@ func SendMessage(message string) {
 //GetMessage gets message from the bot and replies to the user
 func GetMessage(bot *tgbotapi.BotAPI, update *tgbotapi.Update) {
 	message := update.Message
-	base, err := url.Parse("http://chatbotapi:8000/getmessage")
+	base, err := url.Parse("http://chatbotapi/getmessage")
 	params := url.Values{}
 	params.Add("message", message.Text)
 	base.RawQuery = params.Encode()
