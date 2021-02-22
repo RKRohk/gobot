@@ -9,8 +9,9 @@ import (
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
 )
 
-type Message struct {
-	Message string `json:message`
+//APIMessage represents a response from API
+type APIMessage struct {
+	Message string `json:"message,omitempty"`
 }
 
 //SendMessage sends a message to the bot to store
@@ -52,7 +53,7 @@ func GetMessage(bot *tgbotapi.BotAPI, update *tgbotapi.Update) {
 		log.Fatalln(err)
 	}
 	defer resp.Body.Close()
-	var target Message
+	var target APIMessage
 	err = json.NewDecoder(resp.Body).Decode(&target)
 	if err != nil {
 		log.Panic(err)
