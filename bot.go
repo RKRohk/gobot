@@ -40,9 +40,11 @@ func main() {
 
 				if update.Message.Command() != "" {
 					handler.Commandhandler(bot, update)
-				} else if update.Message.Command() == "" && update.Message != nil {
-					if update.Message.Chat.IsPrivate() || strings.Contains(update.Message.Text, "Rohk") || (update.Message.ReplyToMessage != nil && update.Message.ReplyToMessage.From.FirstName == bot.Self.FirstName) {
+				} else if update.Message.Command() == "" && update.Message != nil && update.Message.Text != "" {
+					if update.Message.Chat.IsPrivate() || strings.Contains(update.Message.Text, "Gora") || (update.Message.ReplyToMessage != nil && update.Message.ReplyToMessage.From.FirstName == bot.Self.FirstName) {
 						helpers.GetMessage(bot, &update)
+					} else {
+						helpers.SendMessage(update.Message.Text)
 					}
 				}
 			} else if query := update.CallbackQuery; query != nil {
