@@ -4,6 +4,7 @@ import (
 	"log"
 	"os"
 	"os/signal"
+	"strconv"
 	"strings"
 
 	"github.com/rkrohk/gobot/handler"
@@ -15,10 +16,12 @@ import (
 func main() {
 	token := os.Getenv("BOT_TOKEN")
 	bot, err := tgbotapi.NewBotAPI(token)
-
 	if err != nil {
-		log.Panic(token)
-		log.Panic(err)
+		log.Panic("Unable to read token", err)
+	}
+	var blockedUser int
+	if blockedUser, err = strconv.Atoi(os.Getenv("BLOCKED_USER")); err != nil {
+		log.Panic("Unable to read blocked user")
 	}
 
 	bot.Debug = false
@@ -42,6 +45,9 @@ func main() {
 					handler.Commandhandler(bot, update)
 				} else if update.Message.Command() == "" && update.Message != nil && update.Message.Text != "" {
 					if update.Message.Chat.IsPrivate() || strings.Contains(update.Message.Text, "Gora") || (update.Message.ReplyToMessage != nil && update.Message.ReplyToMessage.From.FirstName == bot.Self.FirstName) {
+						if update.Message.From.ID == blockedUser {
+							return
+						}
 						helpers.GetMessage(bot, &update)
 					} else {
 						helpers.SendMessage(update.Message.Text)
