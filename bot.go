@@ -22,6 +22,8 @@ func main() {
 	var blockedUser int
 	if blockedUser, err = strconv.Atoi(os.Getenv("BLOCKED_USER")); err != nil {
 		log.Panic("Unable to read blocked user")
+	} else {
+		log.Println("Blocked user is", blockedUser)
 	}
 
 	bot.Debug = false
@@ -46,9 +48,11 @@ func main() {
 				} else if update.Message.Command() == "" && update.Message != nil && update.Message.Text != "" {
 					if update.Message.Chat.IsPrivate() || strings.Contains(update.Message.Text, "Gora") || (update.Message.ReplyToMessage != nil && update.Message.ReplyToMessage.From.FirstName == bot.Self.FirstName) {
 						if update.Message.From.ID == blockedUser {
-							return
+
+						} else {
+							helpers.GetMessage(bot, &update)
 						}
-						helpers.GetMessage(bot, &update)
+
 					} else {
 						helpers.SendMessage(update.Message.Text)
 					}
