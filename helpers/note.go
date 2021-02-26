@@ -4,10 +4,12 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"os"
 	"regexp"
 	"time"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
+	"github.com/rkrohk/gobot/helpers/search"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -60,7 +62,13 @@ func SaveNote(bot *tgbotapi.BotAPI, update *tgbotapi.Update) {
 	var newNote Note
 	if repliedToDocument != nil {
 		newNote = Note{FileID: repliedToDocument.FileID, Tag: tag, Content: repliedToDocument.FileName}
-
+		fileConfig := tgbotapi.FileConfig{FileID: repliedToDocument.FileID}
+		doc, err := bot.GetFile(fileConfig)
+		if err != nil {
+			log.Println("Note.Go: Error getting file link", err)
+		}
+		link := doc.Link(os.Getenv("BOT_TOKEN"))
+		go search.Index(link, repliedToDocument, tag)
 	} else {
 		newNote = Note{Tag: tag, MessageID: repliedToMessage.MessageID, MessageFromChatID: repliedToMessage.Chat.ID, Content: repliedToMessage.Text}
 	}

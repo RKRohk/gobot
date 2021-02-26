@@ -1,3 +1,11 @@
 .env
 
 gobot
+
+data
+
+nltk
+
+nltk_data
+
+.env*

@@ -1,11 +1,10 @@
 version: "3"
 services:
   bot:
-    build:
-      context: .
-      dockerfile: Dockerfile_dev
-    env_file: "./.env"
-    command: /bin/sh -c "while sleep 1000; do :; done"
+    build: .
+    container_name: gobot
+    env_file: "./.env.gobot"
+    restart: always
 
   mongo:
     image: mongo
@@ -14,3 +13,29 @@ services:
       - 27017:27017
     expose:
       - 27017
+    volumes:
+      - ~/mongo/data:/data/db
+
+  chatbotapi:
+    image: rkrohk/chatbotapi
+    container_name: chatbotapi
+    hostname: chatbotapi
+    ports:
+      - 8000:80
+    expose:
+      - 80
+
+    environment:
+      - MONGO_URI=mongo
+
+    volumes:
+      - ./data:/src/app/data
+      - ./nltk_data:/root/nltk_data
+
+  mongo-express:
+    image: mongo-express
+    environment:
+      - ME_CONFIG_MONGODB_SERVER=mongo
+      - ME_CONFIG_MONGODB_PORT=27017
+    ports:
+      - "8080:8081"
