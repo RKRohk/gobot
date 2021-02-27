@@ -30,7 +30,7 @@ func Commandhandler(bot *tgbotapi.BotAPI, update tgbotapi.Update) {
 	case "echo":
 		{
 			msg := tgbotapi.NewMessage(update.Message.Chat.ID, "")
-			msg.ReplyToMessageID = update.Message.MessageID
+			// msg.ReplyToMessageID = update.Message.MessageID
 			msg.Text = strings.Replace(update.Message.Text, "/echo", "", 1)
 			go bot.Send(msg)
 		}
