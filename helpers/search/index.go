@@ -21,6 +21,7 @@ var err error
 var es7 *elasticsearch7.Client
 var logger *log.Logger
 
+//Document represents an elasticsearch document
 type Document struct {
 	FileID   string `json:"fileID,omitempty"`
 	Data     string `json:"data,omitempty"`
@@ -34,10 +35,11 @@ func init() {
 	if err != nil {
 		log.Panic(err)
 	} else {
-		log.Println(es7)
+		log.Println("ElasticSearch Initialized!")
 	}
 }
 
+//Index function takes a talagram document, converts it to base64 and sends it to elasticsearch to index
 func Index(link string, repliedToDocument *tgbotapi.Document, hashTag string) {
 	res, err := http.Get(link)
 	if err != nil {

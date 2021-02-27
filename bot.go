@@ -17,11 +17,17 @@ func main() {
 	token := os.Getenv("BOT_TOKEN")
 	bot, err := tgbotapi.NewBotAPI(token)
 	if err != nil {
-		log.Panic("Unable to read token", err)
+		log.Fatal("Unable to read token", err)
 	}
 	var blockedUser int
+	var owner int
+
+	if owner, err = strconv.Atoi(os.Getenv("OWNER")); err != nil {
+		log.Fatal("Unable to read owner user")
+	}
+
 	if blockedUser, err = strconv.Atoi(os.Getenv("BLOCKED_USER")); err != nil {
-		log.Panic("Unable to read blocked user")
+		log.Fatal("Unable to read blocked user")
 	} else {
 		log.Println("Blocked user is", blockedUser)
 	}
@@ -64,6 +70,15 @@ func main() {
 				handler.Inlinehandler(bot, &update)
 			}
 
+		}
+	}()
+
+	defer func() {
+		if err := recover(); err != nil {
+			log.Println("Error occurred", err)
+			errorMessage := tgbotapi.NewMessage(int64(owner), "An error occurred")
+			bot.Send(errorMessage)
+			log.Println("Recovering")
 		}
 	}()
 

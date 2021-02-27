@@ -25,11 +25,24 @@ func inlineSlap(update *tgbotapi.Update) string {
 func Inlinehandler(bot *tgbotapi.BotAPI, update *tgbotapi.Update) {
 
 	article := tgbotapi.NewInlineQueryResultArticleHTML("1", "Shrug", fmt.Sprintf("¯\\_(ツ)_/¯"))
+
+	inlineConf := tgbotapi.InlineConfig{
+		InlineQueryID: update.InlineQuery.ID,
+		IsPersonal:    false,
+		CacheTime:     0,
+		Results:       []interface{}{article},
+	}
+
+	if _, err := bot.AnswerInlineQuery(inlineConf); err != nil {
+		log.Println("Error sending inline query answer")
+		log.Println(err)
+	}
+
 	slapArticle := tgbotapi.NewInlineQueryResultArticleMarkdown("2", "Slap", inlineSlap(update))
 	article.Description = "¯\\_(ツ)_/¯"
 	slapArticle.Description = "Write the name of the person you want to slap"
 
-	inlineConf := tgbotapi.InlineConfig{
+	inlineConf = tgbotapi.InlineConfig{
 		InlineQueryID: update.InlineQuery.ID,
 		IsPersonal:    false,
 		CacheTime:     0,
@@ -37,7 +50,7 @@ func Inlinehandler(bot *tgbotapi.BotAPI, update *tgbotapi.Update) {
 	}
 
 	if _, err := bot.AnswerInlineQuery(inlineConf); err != nil {
-		log.Println("Error sending inline query answer")
+		log.Println("Error sending slap inline query answer")
 		log.Println(err)
 	}
 }
