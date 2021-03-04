@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"os"
 	"time"
 
 	"go.mongodb.org/mongo-driver/bson"
@@ -12,9 +13,14 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
+var prod = os.Getenv("PROD")
+
 //InitDb Initializes the database
 func newClient() (*mongo.Client, error) {
-	return mongo.NewClient(options.Client().ApplyURI("mongodb://mongo:27017"))
+	if prod == "TRUE" {
+		return mongo.NewClient(options.Client().ApplyURI("mongodb://mongo:27017"))
+	}
+	return mongo.NewClient(options.Client().ApplyURI("mongodb://localhost:27017"))
 }
 
 //SlapString is this
