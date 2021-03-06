@@ -122,17 +122,23 @@ func GetNotes(bot *tgbotapi.BotAPI, update *tgbotapi.Update) {
 	}
 	if len(notes) == 0 {
 		noNotesMessage := tgbotapi.NewMessage(update.Message.Chat.ID, "No notes were found for this tag")
-		go bot.Send(noNotesMessage)
+		if _, err := bot.Send(noNotesMessage); err != nil {
+			log.Println("Error message ", tag, "\n", err)
+		}
 		return
 	}
 	for _, note := range notes {
 		if note.FileID != "" {
 			documentShare := tgbotapi.NewDocumentShare(update.Message.Chat.ID, note.FileID)
 			documentShare.DisableNotification = true
-			go bot.Send(documentShare)
+			if _, err := bot.Send(documentShare); err != nil {
+				log.Println("Error sending file for ", tag, "\n", err)
+			}
 		} else {
 			forwardConfig := tgbotapi.NewForward(update.Message.Chat.ID, note.MessageFromChatID, note.MessageID)
-			go bot.Send(forwardConfig)
+			if _, err := bot.Send(forwardConfig); err != nil {
+				log.Println("Error forwarding message for ", tag, "\n", err)
+			}
 		}
 	}
 }

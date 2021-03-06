@@ -39,6 +39,7 @@ func Search(hashTag string, query string) []string {
 		if err != nil {
 			logger.Println("Error", err)
 		} else {
+			logger.Println("Search response for ", hashTag, "\n", response)
 			fileIDs := make([]string, 0)
 			for _, hit := range res.Hits.Hits {
 				for _, fileID := range hit.Fields.FileID {
