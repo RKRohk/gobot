@@ -115,7 +115,6 @@ func GetSlapStrings() (string, error) {
 
 	defer slapArr.Close(ctx)
 	if err != nil {
-		log.Panic(err)
 		return "", err
 	}
 
