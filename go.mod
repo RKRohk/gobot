@@ -12,7 +12,6 @@ require (
 	github.com/kr/text v0.2.0 // indirect
 	github.com/stretchr/testify v1.7.0 // indirect
 	github.com/technoweenie/multipartstreamer v1.0.1 // indirect
-	github.com/tidwall/gjson v1.6.8
 	github.com/tidwall/pretty v1.0.2 // indirect
 	go.mongodb.org/mongo-driver v1.4.4
 	golang.org/x/crypto v0.0.0-20201221181555-eec23a3978ad // indirect

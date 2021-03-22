@@ -184,3 +184,37 @@ func DeleteNote(bot *tgbotapi.BotAPI, update *tgbotapi.Update) {
 		go bot.Send(replyMessage)
 	}
 }
+
+func GetAllTags(bot *tgbotapi.BotAPI, update *tgbotapi.Update) {
+
+	client, err := newClient()
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	defer cancel()
+	err = client.Connect(ctx)
+	defer func() {
+		if err = client.Disconnect(ctx); err != nil {
+			panic(err)
+		}
+	}()
+	notesCollection := client.Database("bot").Collection("notes")
+
+	distinctTags, err := notesCollection.Distinct(context.Background(), "tag", bson.D{})
+
+	returnMessage := tgbotapi.NewMessage(update.Message.Chat.ID, "")
+	returnMessage.ParseMode = "markdown"
+
+	if err != nil {
+		log.Println("Error", err)
+		returnMessage.Text = "There was an error finding your tags"
+	} else {
+		log.Println(distinctTags)
+		returnMessageText := "*Your saved notes are*\n\n"
+		for _, tag := range distinctTags {
+			returnMessageText = returnMessageText + fmt.Sprintf("• %s\n", tag)
+		}
+		fmt.Println(returnMessageText)
+		returnMessage.Text = returnMessageText
+	}
+	bot.Send(returnMessage)
+
+}
