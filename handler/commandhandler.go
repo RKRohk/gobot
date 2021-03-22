@@ -111,6 +111,11 @@ func Commandhandler(bot *tgbotapi.BotAPI, update tgbotapi.Update) {
 		{
 			go helpers.Search(bot, &update)
 		}
+
+	case "dadjoke":
+		{
+			go helpers.DadJoke(bot, &update)
+		}
 	}
 
 }
