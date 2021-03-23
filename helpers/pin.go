@@ -30,3 +30,15 @@ func Pin(bot *tgbotapi.BotAPI, update *tgbotapi.Update) {
 		log.Println(err)
 	}
 }
+
+func Unpin(bot *tgbotapi.BotAPI, update *tgbotapi.Update) {
+	message := update.Message
+	replyMessage := tgbotapi.NewMessage(update.Message.Chat.ID, "")
+	repliedToMessage := update.Message.ReplyToMessage
+	if repliedToMessage == nil {
+		replyMessage.Text = "Please reply to a message"
+	} else {
+		unpinMessageConfig := tgbotapi.UnpinChatMessageConfig{ChatID: message.Chat.ID}
+		go bot.UnpinChatMessage(unpinMessageConfig)
+	}
+}
