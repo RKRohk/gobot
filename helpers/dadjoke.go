@@ -7,6 +7,7 @@ import (
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
 )
 
+//DadJoke fetches a dadjoke from icanhazdadjoke.com
 func DadJoke(bot *tgbotapi.BotAPI, update *tgbotapi.Update) {
 	url := "https://icanhazdadjoke.com"
 	req, _ := http.NewRequest("GET", url, nil)

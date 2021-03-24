@@ -7,6 +7,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/rkrohk/gobot/database"
 	"github.com/rkrohk/gobot/handler"
 	"github.com/rkrohk/gobot/helpers"
 
@@ -19,6 +20,9 @@ func main() {
 	if err != nil {
 		log.Fatal("Unable to read token", err)
 	}
+
+	defer database.DisconnectDatabase()
+
 	var blockedUser int
 	var owner int
 

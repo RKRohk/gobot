@@ -1,54 +1,55 @@
 package helpers
 
 import (
-	"fmt"
+	"log"
+	"regexp"
 	"strings"
-	"time"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
+	"github.com/rkrohk/gobot/helpers/reminders"
 )
 
-type reminder struct {
-	text         string
-	chatID       int64
-	reminderTime time.Time
-}
-
-func newReminder(text string, chatID int64, reminderTime string) *reminder {
-
-	return &reminder{text, chatID, time.Now()}
-}
-
-//Remind takes an update as argument and handles the function call
 func Remind(bot *tgbotapi.BotAPI, update *tgbotapi.Update) {
-	msg := update.Message
+	message := update.Message
+	text := message.Text
+	text = strings.Replace(text, "/remind ", "", 1)
 
-	msgArr := strings.Split(msg.Text, " ")
+	log.Println(text)
+	dateRegex := regexp.MustCompile(`0?\d\/0?\d\/20\d\d 0?\d:\d\d[A|P]M`)
 
-	if len(msgArr) == 0 {
-		replyMessage := tgbotapi.NewMessage(update.Message.Chat.ID, "Invalid message")
-		replyMessage.ReplyToMessageID = update.Message.MessageID
-		bot.Send(replyMessage)
-		return
-	}
-	remindTimeStr := msgArr[len(msgArr)-1]
+	reply := tgbotapi.NewMessage(update.Message.Chat.ID, "hi")
+	reply.ReplyToMessageID = message.From.ID
 
-	if waitDuration, err := time.ParseDuration(remindTimeStr); err != nil {
-		replyMessage := tgbotapi.NewMessage(update.Message.Chat.ID, "Invalid Time")
-		replyMessage.ReplyToMessageID = update.Message.MessageID
-		bot.Send(replyMessage)
+	defer func() {
+		go bot.Send(reply)
+	}()
+
+	if dateIndices := dateRegex.FindStringIndex(text); dateIndices != nil {
+		dateString := text[dateIndices[0]:dateIndices[1]]
+		log.Println(dateString, ":DateString")
+		if date, err := reminders.ParseDate(dateString); err != nil {
+			reply.Text = "Time format is incorrect"
+			log.Println("Invalid date format", err)
+			return
+		} else {
+			log.Println("Parsed date is ", date)
+			title := text[dateIndices[1]:]
+
+			newReminder := &reminders.Reminder{Date: date, Title: title, Message: *message}
+			err := newReminder.Save()
+			if err != nil {
+				reply.Text = "There was an error saving your reminder"
+				log.Println(err)
+			} else {
+				reply.Text = "Reminder saved"
+				log.Println("Reminder saved")
+			}
+		}
+
 	} else {
-		remindMessage := strings.Join(msgArr[1:len(msgArr)-1], " ")
-		fmt.Println(msgArr[1 : len(msgArr)-1])
-		fmt.Println()
-		message := tgbotapi.NewMessage(update.Message.Chat.ID, fmt.Sprintf("Okay, I will remind you about:\n*%s*\n\nAfter `%s`", remindMessage, remindTimeStr))
-		message.ParseMode = "markdown"
-		message.ReplyToMessageID = update.Message.MessageID
-		bot.Send(message)
-		time.Sleep(waitDuration)
-		message.Text = fmt.Sprintf("Yo here is your reminder\n*%s*", remindMessage)
-		bot.Send(message)
+		log.Println(dateIndices)
+		log.Println("Invalid date")
+		reply.Text = "Please enter a valid date"
 	}
 
-	fmt.Println(remindTimeStr)
 }

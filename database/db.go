@@ -1,8 +1,9 @@
-package helpers
+package database
 
 import (
 	"context"
 	"log"
+	"os"
 	"time"
 
 	"go.mongodb.org/mongo-driver/mongo"
@@ -12,6 +13,7 @@ import (
 var Client *mongo.Client
 var ctx context.Context
 var cancel context.CancelFunc
+var prod = os.Getenv("PROD")
 
 func init() {
 	log.Println("Connecting to database")
@@ -32,7 +34,7 @@ func init() {
 }
 
 func DisconnectDatabase() {
-
+	log.Println("Disconnecting from database")
 	if err := Client.Disconnect(ctx); err != nil {
 		log.Panic(err)
 	}
