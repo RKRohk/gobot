@@ -9,6 +9,7 @@ import (
 	"github.com/rkrohk/gobot/helpers/reminders"
 )
 
+//Remind handles the /remind command
 func Remind(bot *tgbotapi.BotAPI, update *tgbotapi.Update) {
 	message := update.Message
 	text := message.Text
@@ -35,7 +36,7 @@ func Remind(bot *tgbotapi.BotAPI, update *tgbotapi.Update) {
 			log.Println("Parsed date is ", date)
 			title := text[dateIndices[1]:]
 
-			newReminder := &reminders.Reminder{Date: date, Title: title, Message: *message}
+			newReminder := &reminders.Reminder{Date: date, Title: title, ChatId: message.Chat.ID}
 			err := newReminder.Save()
 			if err != nil {
 				reply.Text = "There was an error saving your reminder"
