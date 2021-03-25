@@ -121,6 +121,11 @@ func Commandhandler(bot *tgbotapi.BotAPI, update tgbotapi.Update) {
 		{
 			go helpers.DadJoke(bot, &update)
 		}
+
+	case "sed":
+		{
+			go helpers.Sed(bot, &update)
+		}
 	}
 
 }
