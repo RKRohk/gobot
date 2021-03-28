@@ -6,6 +6,9 @@ services:
     env_file: "./.env.gobot"
     restart: always
 
+    environment: 
+      - PROD=TRUE
+
   mongo:
     image: mongo
     container_name: mongo
@@ -20,10 +23,12 @@ services:
     image: rkrohk/chatbotapi
     container_name: chatbotapi
     hostname: chatbotapi
-    ports:
-      - 8000:80
+
     expose:
-      - 80
+      - 50051
+
+    environment: 
+      - PROD=TRUE
 
     environment:
       - MONGO_URI=mongo

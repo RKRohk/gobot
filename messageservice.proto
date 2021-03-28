@@ -1,0 +1,20 @@
+syntax = "proto3";
+
+option go_package = "helpers/ai";
+
+import "google/protobuf/empty.proto";
+
+
+service MessageService {
+    rpc GetResponse(MessageRequest) returns (MessageResponse) {}
+    rpc Train(MessageRequest) returns (google.protobuf.Empty) {}
+
+}
+
+message MessageRequest {
+    string message = 1;
+}
+
+message MessageResponse {
+    string message = 1;
+}
