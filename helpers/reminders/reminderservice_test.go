@@ -7,5 +7,5 @@ import (
 )
 
 func TestGettingReminders(t *testing.T) {
-	reminders.InitializeReminders()
+	reminders.GetClosestReminder()
 }

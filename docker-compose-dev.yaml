@@ -6,8 +6,6 @@ services:
     env_file: "./.env.gobot"
     restart: always
 
-    environment: 
-      - PROD=TRUE
 
   mongo:
     image: mongo
