@@ -2,7 +2,6 @@ package helpers
 
 import (
 	"log"
-	"regexp"
 	"strings"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
@@ -16,16 +15,11 @@ func Remind(bot *tgbotapi.BotAPI, update *tgbotapi.Update) {
 	text = strings.Replace(text, "/remind ", "", 1)
 
 	log.Println(text)
-	dateRegex := regexp.MustCompile(`0?\d\/0?\d\/20\d\d 0?\d:\d\d[A|P]M`)
 
 	reply := tgbotapi.NewMessage(update.Message.Chat.ID, "hi")
 	reply.ReplyToMessageID = message.From.ID
 
-	defer func() {
-		go bot.Send(reply)
-	}()
-
-	if dateIndices := dateRegex.FindStringIndex(text); dateIndices != nil {
+	if dateIndices := reminders.GetDateIndices(text); dateIndices != nil {
 		dateString := text[dateIndices[0]:dateIndices[1]]
 		log.Println(dateString, ":DateString")
 		if date, err := reminders.ParseDate(dateString); err != nil {
@@ -52,5 +46,7 @@ func Remind(bot *tgbotapi.BotAPI, update *tgbotapi.Update) {
 		log.Println("Invalid date")
 		reply.Text = "Please enter a valid date"
 	}
+
+	bot.Send(reply)
 
 }

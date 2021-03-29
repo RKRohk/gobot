@@ -6,11 +6,15 @@ import (
 	"os"
 	"time"
 
+	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
 	"github.com/rkrohk/gobot/database"
+	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 var logger = log.New(os.Stdout, "Package:Reminders", log.LstdFlags)
+
+var ReminderMessageChannel = make(chan *tgbotapi.MessageConfig)
 
 //Reminder is memory representation of a reminder object
 type Reminder struct {
@@ -25,7 +29,8 @@ type Reminders []Reminder
 
 //ParseDate parses given date (string) to a time.Time object
 func ParseDate(date string) (time.Time, error) {
-	format := "_2/1/2006 3:04PM"
+	format := "_2/1/2006 3:04PM MST"
+	log.Println("Parsing date", date)
 	return time.Parse(format, date)
 }
 
@@ -36,5 +41,23 @@ func (reminder *Reminder) Save() error {
 	defer cancel()
 	res, err := remindersCollection.InsertOne(ctx, &reminder)
 	logger.Println(res.InsertedID)
+	if err == nil {
+		CompareReminders(reminder)
+	}
 	return err
+}
+
+func (reminder *Reminder) Delete() error {
+	remindersCollection := database.Client.Database("bot").Collection("reminders")
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+	_, err := remindersCollection.DeleteOne(ctx, bson.D{primitive.E{Key: "_id", Value: reminder.ID}})
+
+	return err
+}
+
+func CompareReminders(reminder *Reminder) {
+	if reminder.Date.Before(ClosestEvent.Date) {
+		reminderChannel <- reminderInterrupt{}
+	}
 }

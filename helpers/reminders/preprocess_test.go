@@ -9,8 +9,8 @@ import (
 
 func TestRegex(t *testing.T) {
 
-	tests := []string{"01/04/2021 2:51PM Happy Birthday", "01/04/2021 2:51PM Hi", "01/04/2021 12:51PM Exam today", "25/02/2021 12:51PM Assignment Due"}
-	expected := []string{"01/04/2021 2:51PM", "01/04/2021 2:51PM", "01/04/2021 12:51PM", "25/02/2021 12:51PM"}
+	tests := []string{"01/04/2021 2:51PM Happy Birthday", "01/04/2021 2:51PM Hi", "01/04/2021 12:51PM Exam today", "25/02/2021 12:51PM Assignment Due", "/remind 29/03/2021 6:56PM Not Hillo"}
+	expected := []string{"01/04/2021 2:51PM", "01/04/2021 2:51PM", "01/04/2021 12:51PM", "25/02/2021 12:51PM", "29/03/2021 6:56PM"}
 
 	for i, test := range tests {
 		indices := reminders.GetDateIndices(test)
