@@ -1,8 +1,10 @@
 package helpers
 
 import (
+	"fmt"
 	"log"
 	"strings"
+	"time"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
 	"github.com/rkrohk/gobot/helpers/reminders"
@@ -17,7 +19,7 @@ func Remind(bot *tgbotapi.BotAPI, update *tgbotapi.Update) {
 	log.Println(text)
 
 	reply := tgbotapi.NewMessage(update.Message.Chat.ID, "hi")
-	reply.ReplyToMessageID = message.From.ID
+	reply.ReplyToMessageID = message.MessageID
 
 	if dateIndices := reminders.GetDateIndices(text); dateIndices != nil {
 		dateString := text[dateIndices[0]:dateIndices[1]]
@@ -31,14 +33,19 @@ func Remind(bot *tgbotapi.BotAPI, update *tgbotapi.Update) {
 			title := text[dateIndices[1]:]
 
 			newReminder := &reminders.Reminder{Date: date, Title: title, ChatId: message.Chat.ID}
-			err := newReminder.Save()
-			if err != nil {
-				reply.Text = "There was an error saving your reminder"
-				log.Println(err)
+			if newReminder.Date.Before(time.Now()) {
+				reply.Text = "I cannot save a reminder for the past"
 			} else {
-				reply.Text = "Reminder saved"
-				log.Println("Reminder saved")
+				err := newReminder.Save()
+				if err != nil {
+					reply.Text = "There was an error saving your reminder"
+					log.Println(err)
+				} else {
+					reply.Text = fmt.Sprintf("Okay, I will remind you about:\n*%s*\n\nAt `%s`", newReminder.Title, newReminder.Date)
+					log.Println("Reminder saved")
+				}
 			}
+
 		}
 
 	} else {
@@ -47,6 +54,19 @@ func Remind(bot *tgbotapi.BotAPI, update *tgbotapi.Update) {
 		reply.Text = "Please enter a valid date"
 	}
 
-	bot.Send(reply)
+	reply.ParseMode = "markdown"
+	_, err := bot.Send(reply)
+	if err != nil {
+		log.Println(err)
+	}
 
+}
+
+func InitReminderService(bot *tgbotapi.BotAPI) {
+
+	for event := range reminders.RemindersChannel {
+		reminder := event
+		bot.Send(reminder.MessageConfig)
+		log.Println("Reminder : Sent!")
+	}
 }

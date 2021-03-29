@@ -2,7 +2,9 @@ package reminders
 
 import (
 	"context"
+	"fmt"
 	"log"
+	"strings"
 	"time"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
@@ -17,8 +19,11 @@ import (
 type reminderInterrupt struct {
 }
 
-//ReminderChannel is a channel of reminderInterrupts
-var reminderChannel = make(chan reminderInterrupt)
+//interruptChannel is a channel of reminderInterrupts
+var interruptChannel = make(chan reminderInterrupt)
+
+//RemindersChannel
+var RemindersChannel = make(chan *EventToBeSent)
 
 var reminders Reminders
 
@@ -63,12 +68,12 @@ func GetClosestReminder() {
 
 }
 
-//ReminderService runs for eternity till the bot has to stop
+//ReminderService runs for eternity till the bot stops
 func ReminderService() {
 	for {
 		log.Println(ClosestEvent)
 		select {
-		case <-reminderChannel:
+		case <-interruptChannel:
 			{
 				log.Println("I have got a new reminder")
 				GetClosestReminder()
@@ -86,11 +91,15 @@ func ReminderService() {
 
 func SendReminder(event *Reminder) {
 
-	newMessage := tgbotapi.NewMessage(event.ChatId, event.Title)
+	newMessage := tgbotapi.NewMessage(event.ChatId, "")
 
-	ReminderMessageChannel <- &newMessage
-	<-ReminderMessageChannel
+	newMessage.Text = fmt.Sprintf("Here is your reminder\n\n*%s*", strings.Trim(event.Title, ""))
+
+	newMessage.ParseMode = "markdown"
+
+	eventToBeSent := &EventToBeSent{Reminder: event, MessageConfig: &newMessage}
+
+	RemindersChannel <- eventToBeSent
 
 	event.Delete()
-
 }

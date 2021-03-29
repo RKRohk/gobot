@@ -14,14 +14,17 @@ import (
 
 var logger = log.New(os.Stdout, "Package:Reminders", log.LstdFlags)
 
-var ReminderMessageChannel = make(chan *tgbotapi.MessageConfig)
-
 //Reminder is memory representation of a reminder object
 type Reminder struct {
 	ID     primitive.ObjectID `bson:"_id,omitempty"`
 	Date   time.Time          `bson:"date,omitempty"`
 	Title  string             `bson:"title,omitempty"`
 	ChatId int64              `bson:"chatID,omitempty"`
+}
+
+type EventToBeSent struct {
+	Reminder      *Reminder
+	MessageConfig *tgbotapi.MessageConfig
 }
 
 //Reminders is an array of reminders
@@ -58,6 +61,6 @@ func (reminder *Reminder) Delete() error {
 
 func CompareReminders(reminder *Reminder) {
 	if reminder.Date.Before(ClosestEvent.Date) {
-		reminderChannel <- reminderInterrupt{}
+		interruptChannel <- reminderInterrupt{}
 	}
 }

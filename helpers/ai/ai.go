@@ -64,3 +64,7 @@ func SendMessage(message string) (*emptypb.Empty, error) {
 	return client.Train(ctx, messageConfig)
 
 }
+
+func Close() {
+	cc.Close()
+}
