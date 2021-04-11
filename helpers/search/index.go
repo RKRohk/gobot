@@ -31,7 +31,7 @@ type Document struct {
 
 func init() {
 	if len(elasticSearchURL) == 0 {
-		elasticSearchURL = "http://52.172.252.187:9200"
+		elasticSearchURL = "http://search:9200"
 	}
 	cfg = elasticsearch7.Config{Addresses: []string{elasticSearchURL}}
 	es7, err = elasticsearch7.NewClient(cfg)
@@ -39,7 +39,13 @@ func init() {
 	if err != nil {
 		log.Panic(err)
 	} else {
-		log.Println("ElasticSearch Initialized!")
+		_, err := es7.Ping()
+		if err != nil {
+			log.Panicln("Error connecting to elasticsearch", err)
+		} else {
+			log.Println("ElasticSearch Initialized!")
+		}
+
 	}
 }
 
