@@ -7,21 +7,18 @@ services:
 
   mongo:
     image: mongo
-    hostname: mongo
     container_name: mongo
     ports:
       - 27017:27017
     expose:
       - 27017
     volumes:
-      - ~/mongo/data:/data/db
+      - mongodata:/data/db
 
   chatbotapi:
     image: rkrohk/chatbotapi
     container_name: chatbotapi
     hostname: chatbotapi
-    # ports:
-    #   - 8000:80
     expose:
       - 50051
 
@@ -29,8 +26,8 @@ services:
       - MONGO_URI=mongo
 
     volumes:
-      - ./data:/src/app/data
-      - ./nltk_data:/root/nltk_data
+      - chatbotapi_data:/src/app/data
+      - nltk_data:/root/nltk_data
 
   mongo-express:
     image: mongo-express
@@ -39,3 +36,53 @@ services:
       - ME_CONFIG_MONGODB_PORT=27017
     ports:
       - "8080:8081"
+
+
+  es01:
+    image: rkrohk/elasticsearch
+    container_name: es01
+    environment:
+      - node.name=es01
+      - cluster.name=es-docker-cluster
+      - discovery.seed_hosts=es02
+      - cluster.initial_master_nodes=es01,es02  
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - data01:/usr/share/elasticsearch/data
+    ports:
+      - 9200:9200
+    # networks:
+    #   - elastic
+
+  es02:
+    image: rkrohk/elasticsearch
+    container_name: es02
+    environment:
+      - node.name=es02
+      - cluster.name=es-docker-cluster
+      - discovery.seed_hosts=es01  
+      - cluster.initial_master_nodes=es01,es02  
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - data02:/usr/share/elasticsearch/data
+
+
+volumes:
+  mongodata:
+  nltk_data:
+  chatbotapi_data:
+  data01:
+    driver: local
+
+  data02:
+    driver: local  
