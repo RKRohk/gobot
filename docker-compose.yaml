@@ -41,6 +41,7 @@ services:
   es01:
     image: rkrohk/elasticsearch
     container_name: es01
+    hostname: search
     environment:
       - node.name=es01
       - cluster.name=es-docker-cluster
