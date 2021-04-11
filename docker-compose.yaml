@@ -79,8 +79,11 @@ services:
 
 volumes:
   mongodata:
+    driver: local
   nltk_data:
+    driver: local
   chatbotapi_data:
+    driver: local
   data01:
     driver: local
 
