@@ -9,6 +9,7 @@ on:
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
+
   docker:
     runs-on: ubuntu-latest
     steps:
@@ -48,11 +49,11 @@ jobs:
           
       - name: Image digest
         run: echo ${{ steps.docker_build.outputs.digest }}
-  build:
+  restart:
+    needs: docker
     runs-on: ubuntu-latest
     steps:
     - name: Wait for docker build to complete
-      run: sleep 10
       
     - name: Killing Old Container and Setting up new one
       uses: appleboy/ssh-action@master
