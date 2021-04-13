@@ -9,6 +9,29 @@ This bot started as a small project to store class notes and keep assignment rem
 Slowly and gradually, a lot of features have been added to it
 
 
+## Structure
+
+```
+                --- Bot (written on GoLang)
+                |
+                |
+                --- AI gRPC endpoint (written on Python)
+                |
+                |
+                --- MongoDB instance
+                |
+                |
+ Docker Daemon  --- Mongo Express (to view the database)
+                |
+                |
+                --- ElasticSearch1 (load balanced)
+                |
+                |
+                --- ElasticSearch2 (load balanced)
+  
+```
+
+
 ## Features
 
 ### AI
