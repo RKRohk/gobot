@@ -100,3 +100,110 @@ Slaps the person the command is used against
 
 Reply to a user with this command and the bot will slap them with a sticker
 
+
+## Deployment
+
+This bot can be deployed on any linux server with Docker installed. 
+Using docker compose, it can also be deployed on services like AWS Elastic Beanstalk, DigitalOcean Application Service, etc
+
+## Docker Compose Structure
+```
+version: "3"
+services:
+  bot:
+    image: rkrohk/gobot:latest
+    env_file: "./.env.gobot"
+    restart: always
+
+  mongo:
+    image: mongo
+    container_name: mongo
+    ports:
+      - 27017:27017
+    expose:
+      - 27017
+    volumes:
+      - mongodata:/data/db
+
+  chatbotapi:
+    image: rkrohk/chatbotapi
+    container_name: chatbotapi
+    hostname: chatbotapi
+    expose:
+      - 50051
+
+    environment:
+      - MONGO_URI=mongo
+
+    volumes:
+      - chatbotapi_data:/src/app/data
+      - nltk_data:/root/nltk_data
+
+  mongo-express:
+    image: mongo-express
+    environment:
+      - ME_CONFIG_MONGODB_SERVER=mongo
+      - ME_CONFIG_MONGODB_PORT=27017
+    ports:
+      - "8080:8081"
+
+
+  es01:
+    image: rkrohk/elasticsearch
+    container_name: es01
+    environment:
+      - node.name=es01
+      - cluster.name=es-docker-cluster
+      - discovery.seed_hosts=es02
+      - cluster.initial_master_nodes=es01,es02  
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - data01:/usr/share/elasticsearch/data
+    ports:
+      - 9200:9200
+
+  es02:
+    image: rkrohk/elasticsearch
+    container_name: es02
+    environment:
+      - node.name=es02
+      - cluster.name=es-docker-cluster
+      - discovery.seed_hosts=es01  
+      - cluster.initial_master_nodes=es01,es02  
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - data02:/usr/share/elasticsearch/data
+
+
+volumes:
+  mongodata:
+  nltk_data:
+  chatbotapi_data:
+  data01:
+    driver: local
+
+  data02:
+    driver: local 
+```
+
+Along with the docker compose file, you also need a file named
+`.env.gobot` to store secrets.
+
+Structure of `.env.gobot`
+```
+BOT_TOKEN=<bot token>
+
+BLOCKED_USER=<user ids of banned users>
+
+OWNER=<your telegram user id, get it by using /id>
+```
