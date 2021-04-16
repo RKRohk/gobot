@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: env-gobot
+data:
+  PROD: "TRUE"
+  ELASTICSEARCH_URL: "http://es01:9200"

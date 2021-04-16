@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: bot
+spec:
+  selector:
+    matchLabels:
+      app: bot
+  template:
+    metadata:
+      labels:
+        app: bot
+    spec:
+      containers:
+      - name: bot
+        image: rkrohk/gobot
+        env:
+          - name: BLOCKED_USER
+            valueFrom:
+              secretKeyRef:
+                key: BLOCKED_USER
+                name: gobot-secret
+          - name: BOT_TOKEN
+            valueFrom:
+              secretKeyRef:
+                key: BOT_TOKEN
+                name: gobot-secret
+          - name: ELASTICSEARCH_URL
+            valueFrom:
+              configMapKeyRef:
+                key: ELASTICSEARCH_URL
+                name: env-gobot
+          - name: OWNER
+            valueFrom:
+              secretKeyRef:
+                key: OWNER
+                name: gobot-secret
+          - name: PROD
+            valueFrom:
+              configMapKeyRef:
+                key: PROD
+                name: env-gobot
+        resources: {}
