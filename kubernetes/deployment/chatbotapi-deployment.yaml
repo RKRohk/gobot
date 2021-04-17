@@ -1,0 +1,25 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: chatbotapi
+spec:
+  selector:
+    matchLabels:
+      app: chatbotapi
+  template:
+    metadata:
+      labels:
+        app: chatbotapi
+    spec:
+      containers:
+      - name: chatbotapi
+        image: rkrohk/chatbotapi
+        env:
+          - name: MONGO_URI
+            value: mongo
+        resources:
+          limits:
+            memory: "128Mi"
+            cpu: "500m"
+        ports:
+        - containerPort: 50051
