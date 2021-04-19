@@ -109,7 +109,7 @@ func Commandhandler(bot *tgbotapi.BotAPI, update tgbotapi.Update) {
 
 	case "unpin":
 		{
-			go helpers.Unpin(bot,&update)
+			go helpers.Unpin(bot, &update)
 		}
 
 	case "search":
