@@ -5,18 +5,12 @@ import (
 	"strings"
 
 	"github.com/rkrohk/gobot/helpers"
-	"github.com/rkrohk/gobot/helpers/middleware"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
 )
 
 //Commandhandler handles bot commands
 func Commandhandler(bot *tgbotapi.BotAPI, update tgbotapi.Update) {
-
-	if middleware.HasSession(&update) {
-		//handleupdate
-		return
-	}
 
 	switch update.Message.Command() {
 	case "id":
