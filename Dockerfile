@@ -9,4 +9,8 @@ RUN go mod download
 
 COPY . .
 
-CMD go run bot.go
+RUN CGO_ENABLED=0 go build -o /bin/bot
+
+FROM scratch
+COPY --from=build /bin/bot /bin/bot
+ENTRYPOINT ["/bin/bot"]
