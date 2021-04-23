@@ -1,0 +1,29 @@
+package middleware
+
+import tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
+
+func Handle(bot *tgbotapi.BotAPI, update *tgbotapi.Update) {
+	currentSession := session[UserChatID(update.Message.Chat.ID)]
+
+	switch *currentSession.CurrentCommand {
+	case "batchsave":
+		{
+			//TODO()
+			middlwareLogger.Println("Command is batchsave")
+			return
+		}
+	case "done":
+		{
+			currentSession.SessionHandler.Done(bot, update, currentSession)
+			ClearSession(update)
+			break
+		}
+	case "cancel":
+		{
+			ClearSession(update)
+			break
+		}
+
+	}
+
+}

@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"github.com/rkrohk/gobot/helpers"
+	"github.com/rkrohk/gobot/helpers/middleware"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
 )
@@ -125,6 +126,20 @@ func Commandhandler(bot *tgbotapi.BotAPI, update tgbotapi.Update) {
 	case "sed":
 		{
 			go helpers.Sed(bot, &update)
+		}
+
+	case "batchsave":
+		{
+			go helpers.BatchSave(bot, &update)
+		}
+
+	case "done":
+		{
+			go middleware.Done(bot, &update)
+		}
+	case "cancel":
+		{
+			go middleware.Cancel(bot, &update)
 		}
 	}
 

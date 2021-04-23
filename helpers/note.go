@@ -25,6 +25,12 @@ type Note struct {
 	Content           string             `bson:"content,omitempty"`
 }
 
+//Extracts the hash tag from the message
+func ExtractTag(message string) string {
+	reg := regexp.MustCompile("#\\w+")
+	return reg.FindString(message)
+}
+
 //SaveNote saves a note
 func SaveNote(bot *tgbotapi.BotAPI, update *tgbotapi.Update) {
 
@@ -39,8 +45,7 @@ func SaveNote(bot *tgbotapi.BotAPI, update *tgbotapi.Update) {
 
 	message := update.Message
 
-	reg := regexp.MustCompile("#\\w+")
-	tag := reg.FindString(message.Text)
+	tag := ExtractTag(message.Text)
 
 	log.Println(tag)
 	if tag == "" {

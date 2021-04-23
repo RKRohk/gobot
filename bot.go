@@ -12,6 +12,7 @@ import (
 	"github.com/rkrohk/gobot/handler"
 	"github.com/rkrohk/gobot/helpers"
 	"github.com/rkrohk/gobot/helpers/ai"
+	"github.com/rkrohk/gobot/helpers/middleware"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
 )
@@ -70,6 +71,8 @@ func main() {
 
 				if update.Message.Command() != "" {
 					handler.Commandhandler(bot, update)
+				} else if middleware.HasSession(&update) {
+					middleware.Handle(bot, &update)
 				} else if update.Message.Command() == "" && update.Message != nil && update.Message.Text != "" {
 					if update.Message.Chat.IsPrivate() || strings.Contains(update.Message.Text, "Gora") || (update.Message.ReplyToMessage != nil && update.Message.ReplyToMessage.From.FirstName == bot.Self.FirstName) {
 						if update.Message.From.ID == blockedUser {
