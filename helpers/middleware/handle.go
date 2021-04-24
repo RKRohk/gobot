@@ -10,6 +10,7 @@ func Handle(bot *tgbotapi.BotAPI, update *tgbotapi.Update) {
 		{
 			//TODO()
 			middlwareLogger.Println("Command is batchsave")
+			currentSession.SessionHandler.Continue(bot, update, currentSession)
 			return
 		}
 	case "done":

@@ -88,3 +88,42 @@ func Index(link string, repliedToDocument *tgbotapi.Document, hashTag string) {
 	}
 
 }
+
+//Index function takes a telagram document, converts it to base64 and sends it to elasticsearch to index
+func IndexBulk(link string, fileName string, fileID string, hashTag string) {
+
+	//Downloading the file
+	res, err := http.Get(link)
+	if err != nil {
+		logger.Println("index.go: Error downloading file from url", err)
+	} else {
+		logger.Println(res.Body)
+	}
+
+	//Extracting the tag
+	tag := strings.Replace(hashTag, "#", "", 1)
+
+	if true {
+		file, err := ioutil.ReadAll(res.Body)
+		if err != nil {
+			logger.Println("index.go Unable to read downloaded file")
+			return
+		}
+
+		//Encoding downloaded file to base64
+		data := base64.StdEncoding.EncodeToString(file)
+		elasticDoc := &Document{FileID: fileID, Data: data, FileName: fileName}
+
+		body, err := json.Marshal(elasticDoc)
+
+		index := esapi.IndexRequest{Index: tag, DocumentType: "_doc", Body: bytes.NewReader(body), Pipeline: "attachment"}
+
+		ctx := context.Background()
+		if res, err := index.Do(ctx, es7); err != nil {
+			log.Println("index.go Error: ", err)
+		} else {
+			log.Println("index.go Created Index: ", res)
+		}
+	}
+
+}
