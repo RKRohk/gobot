@@ -77,7 +77,7 @@ func Index(link string, repliedToDocument *tgbotapi.Document, hashTag string) {
 
 		body, err := json.Marshal(elasticDoc)
 
-		index := esapi.IndexRequest{Index: tag, DocumentType: "_doc", Body: bytes.NewReader(body), Pipeline: "attachment"}
+		index := esapi.IndexRequest{Index: tag, DocumentID: repliedToDocument.FileID, DocumentType: "_doc", Body: bytes.NewReader(body), Pipeline: "attachment"}
 
 		ctx := context.Background()
 		if res, err := index.Do(ctx, es7); err != nil {
@@ -116,7 +116,7 @@ func IndexBulk(link string, fileName string, fileID string, hashTag string) {
 
 		body, err := json.Marshal(elasticDoc)
 
-		index := esapi.IndexRequest{Index: tag, DocumentType: "_doc", Body: bytes.NewReader(body), Pipeline: "attachment"}
+		index := esapi.IndexRequest{Index: tag, DocumentID: fileID, DocumentType: "_doc", Body: bytes.NewReader(body), Pipeline: "attachment"}
 
 		ctx := context.Background()
 		if res, err := index.Do(ctx, es7); err != nil {
