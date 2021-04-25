@@ -160,11 +160,21 @@ func DeleteNote(bot *tgbotapi.BotAPI, update *tgbotapi.Update) {
 			panic(err)
 		}
 	}()
-	notesCollection := client.Database("bot").Collection("notes")
+
+	var note note.Note
 	var res *mongo.DeleteResult
+	notesCollection := client.Database("bot").Collection("notes")
 	if repliedToDocument != nil {
 		log.Println(repliedToDocument.FileID)
-		res, err = notesCollection.DeleteOne(ctx, bson.M{"content": repliedToDocument.FileName})
+		res := notesCollection.FindOneAndDelete(ctx, bson.M{"content": repliedToDocument.FileName})
+		err = res.Decode(&note)
+		if err != nil {
+			log.Println(err)
+		} else {
+			log.Println("Decoded note is ", note)
+			search.RemoveDocument(note.Tag, note.FileID)
+		}
+
 	} else {
 		log.Println(repliedToMessage.MessageID)
 		res, err = notesCollection.DeleteOne(ctx, bson.M{"content": repliedToMessage.Text})
@@ -172,9 +182,8 @@ func DeleteNote(bot *tgbotapi.BotAPI, update *tgbotapi.Update) {
 	if err != nil {
 		log.Panic(err)
 	} else {
-		log.Println(res)
 		replyMessage := tgbotapi.NewMessage(update.Message.Chat.ID, "")
-		if res.DeletedCount == 0 {
+		if res != nil && res.DeletedCount == 0 {
 			replyMessage.Text = "No notes were deleted"
 		} else {
 			replyMessage.Text = "Note was deleted"
