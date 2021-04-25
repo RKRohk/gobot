@@ -9,25 +9,24 @@ import (
 	"time"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
+	"github.com/rkrohk/gobot/helpers/note"
 	"github.com/rkrohk/gobot/helpers/search"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
-//Note denotes how a note is saved in the database
-type Note struct {
-	ID                primitive.ObjectID `bson:"_id,omitempty"`
-	FileID            string             `bson:"fileID,omitempty"`
-	Tag               string             `bson:"tag,omitempty"`
-	MessageID         int                `bson:"messageID,omitempty"`
-	MessageFromChatID int64              `bson:"messageFromChatID,omitempty"`
-	Content           string             `bson:"content,omitempty"`
+//Extracts the hash tag from the message
+func ExtractTag(message string) string {
+	reg := regexp.MustCompile("#\\w+")
+	return reg.FindString(message)
 }
 
 //SaveNote saves a note
 func SaveNote(bot *tgbotapi.BotAPI, update *tgbotapi.Update) {
-
+	if update.Message.ReplyToMessage == nil {
+		return
+	}
 	repliedToDocument := update.Message.ReplyToMessage.Document
 	repliedToMessage := update.Message.ReplyToMessage
 	if repliedToDocument == nil {
@@ -39,8 +38,7 @@ func SaveNote(bot *tgbotapi.BotAPI, update *tgbotapi.Update) {
 
 	message := update.Message
 
-	reg := regexp.MustCompile("#\\w+")
-	tag := reg.FindString(message.Text)
+	tag := ExtractTag(message.Text)
 
 	log.Println(tag)
 	if tag == "" {
@@ -59,9 +57,9 @@ func SaveNote(bot *tgbotapi.BotAPI, update *tgbotapi.Update) {
 	}()
 	notesCollection := client.Database("bot").Collection("notes")
 	log.Println(repliedToMessage)
-	var newNote Note
+	var newNote note.Note
 	if repliedToDocument != nil {
-		newNote = Note{FileID: repliedToDocument.FileID, Tag: tag, Content: repliedToDocument.FileName}
+		newNote = note.Note{FileID: repliedToDocument.FileID, Tag: tag, Content: repliedToDocument.FileName}
 		fileConfig := tgbotapi.FileConfig{FileID: repliedToDocument.FileID}
 		doc, err := bot.GetFile(fileConfig)
 		if err != nil {
@@ -70,7 +68,7 @@ func SaveNote(bot *tgbotapi.BotAPI, update *tgbotapi.Update) {
 		link := doc.Link(os.Getenv("BOT_TOKEN"))
 		go search.Index(link, repliedToDocument, tag)
 	} else {
-		newNote = Note{Tag: tag, MessageID: repliedToMessage.MessageID, MessageFromChatID: repliedToMessage.Chat.ID, Content: repliedToMessage.Text}
+		newNote = note.Note{Tag: tag, MessageID: repliedToMessage.MessageID, MessageFromChatID: repliedToMessage.Chat.ID, Content: repliedToMessage.Text}
 	}
 	log.Println(newNote)
 	_, err = notesCollection.InsertOne(ctx, &newNote)
@@ -108,7 +106,7 @@ func GetNotes(bot *tgbotapi.BotAPI, update *tgbotapi.Update) {
 	}()
 	notesCollection := client.Database("bot").Collection("notes")
 
-	var notes []Note
+	var notes []note.Note
 
 	notesFromDb, err := notesCollection.Find(ctx, bson.M{"tag": bson.D{primitive.E{Key: "$eq", Value: tag}}})
 	if err != nil {
@@ -162,11 +160,21 @@ func DeleteNote(bot *tgbotapi.BotAPI, update *tgbotapi.Update) {
 			panic(err)
 		}
 	}()
-	notesCollection := client.Database("bot").Collection("notes")
+
+	var note note.Note
 	var res *mongo.DeleteResult
+	notesCollection := client.Database("bot").Collection("notes")
 	if repliedToDocument != nil {
 		log.Println(repliedToDocument.FileID)
-		res, err = notesCollection.DeleteOne(ctx, bson.M{"content": repliedToDocument.FileName})
+		res := notesCollection.FindOneAndDelete(ctx, bson.M{"content": repliedToDocument.FileName})
+		err = res.Decode(&note)
+		if err != nil {
+			log.Println(err)
+		} else {
+			log.Println("Decoded note is ", note)
+			search.RemoveDocument(note.Tag, note.FileID)
+		}
+
 	} else {
 		log.Println(repliedToMessage.MessageID)
 		res, err = notesCollection.DeleteOne(ctx, bson.M{"content": repliedToMessage.Text})
@@ -174,9 +182,8 @@ func DeleteNote(bot *tgbotapi.BotAPI, update *tgbotapi.Update) {
 	if err != nil {
 		log.Panic(err)
 	} else {
-		log.Println(res)
 		replyMessage := tgbotapi.NewMessage(update.Message.Chat.ID, "")
-		if res.DeletedCount == 0 {
+		if res != nil && res.DeletedCount == 0 {
 			replyMessage.Text = "No notes were deleted"
 		} else {
 			replyMessage.Text = "Note was deleted"
