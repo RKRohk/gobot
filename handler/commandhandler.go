@@ -141,6 +141,11 @@ func Commandhandler(bot *tgbotapi.BotAPI, update tgbotapi.Update) {
 		{
 			go middleware.Cancel(bot, &update)
 		}
+
+	case "deltag":
+		{
+			go helpers.DelTag(bot, &update)
+		}
 	}
 
 }

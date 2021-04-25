@@ -18,12 +18,15 @@ type data struct {
 	Notes []*note.Note
 }
 
+//BatchSave handler adds the command to the user session
 func BatchSave(bot *tgbotapi.BotAPI, update *tgbotapi.Update) {
 	handler := &BatchSaveType{}
 	middleware.AddSession(middleware.UserChatID(update.Message.Chat.ID), "batchsave", handler)
 	handler.Start(bot, update)
 }
 
+//Start function checks whether tag is present or not
+//and then sets the data in the session
 func (b *BatchSaveType) Start(bot *tgbotapi.BotAPI, update *tgbotapi.Update) {
 	reply := tgbotapi.NewMessage(update.Message.Chat.ID, "")
 	messageWithoutCommand := update.Message.CommandArguments()
@@ -39,6 +42,7 @@ func (b *BatchSaveType) Start(bot *tgbotapi.BotAPI, update *tgbotapi.Update) {
 	bot.Send(reply)
 }
 
+//Continue function adds the document to the session
 func (b *BatchSaveType) Continue(bot *tgbotapi.BotAPI, update *tgbotapi.Update, session *middleware.UserSession) {
 	message := update.Message
 	if message.Document != nil {
@@ -51,6 +55,7 @@ func (b *BatchSaveType) Continue(bot *tgbotapi.BotAPI, update *tgbotapi.Update, 
 	}
 }
 
+//Done saves the notes and then indexes them all
 func (b *BatchSaveType) Done(bot *tgbotapi.BotAPI, update *tgbotapi.Update, session *middleware.UserSession) {
 	notes := b.Data.Notes
 	err := note.BulkSaveNotes(notes)
