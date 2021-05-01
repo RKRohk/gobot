@@ -7,21 +7,15 @@ import (
 	"os"
 	"time"
 
+	"github.com/rkrohk/gobot/database"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
-	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 var prod = os.Getenv("PROD")
 
-//InitDb Initializes the database
-func newClient() (*mongo.Client, error) {
-	if prod == "TRUE" {
-		return mongo.NewClient(options.Client().ApplyURI("mongodb://mongo:27017"))
-	}
-	return mongo.NewClient(options.Client().ApplyURI("mongodb://localhost:27017"))
-}
+var DATABASE_URI = os.Getenv("DATABASE_URI")
 
 //SlapString is this
 type SlapString struct {
@@ -37,18 +31,11 @@ type SlapSticker struct {
 
 //AddSlapToDB adds a slap string format to the mongodb database
 func AddSlapToDB(slapString string) {
-	client, err := newClient()
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-	defer cancel()
-	err = client.Connect(ctx)
-	defer func() {
-		if err = client.Disconnect(ctx); err != nil {
-			panic(err)
-		}
-	}()
-	slapCollection := client.Database("bot").Collection("slaps")
+	slapCollection := database.Client.Database("bot").Collection("slaps")
 	var newslap = SlapString{Text: slapString}
 	log.Println(newslap)
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*20)
+	defer cancel()
 	res, err := slapCollection.InsertOne(ctx, &newslap)
 	if err != nil {
 		log.Panic(err)
@@ -59,18 +46,11 @@ func AddSlapToDB(slapString string) {
 
 //GetAllSlapStrings returns a list of all the slap documents
 func GetAllSlapStrings() ([]SlapString, error) {
-	client, err := newClient()
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
-	err = client.Connect(ctx)
-	defer func() {
-		if err = client.Disconnect(ctx); err != nil {
-			panic(err)
-		}
-	}()
 
 	//Reference to the collection in the database
-	slapCollection := client.Database("bot").Collection("slaps")
+	slapCollection := database.Client.Database("bot").Collection("slaps")
 
 	documentCursor, err := slapCollection.Find(ctx, bson.M{})
 	if err != nil {
@@ -97,17 +77,10 @@ func GetAllSlapStrings() ([]SlapString, error) {
 
 //GetSlapStrings gets a random slap string from document
 func GetSlapStrings() (string, error) {
-	client, err := newClient()
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
-	err = client.Connect(ctx)
-	defer func() {
-		if err = client.Disconnect(ctx); err != nil {
-			panic(err)
-		}
-	}()
 
-	slapCollection := client.Database("bot").Collection("slaps")
+	slapCollection := database.Client.Database("bot").Collection("slaps")
 
 	slapArr, err := slapCollection.Aggregate(ctx, mongo.Pipeline{
 		{primitive.E{Key: "$sample", Value: bson.D{primitive.E{Key: "size", Value: 1}}}},
@@ -138,17 +111,10 @@ func GetSlapStrings() (string, error) {
 
 //DeleteSlapFromDb removes a slap string with a given ID from the database
 func DeleteSlapFromDb(documentID string) error {
-	client, err := newClient()
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
-	err = client.Connect(ctx)
-	defer func() {
-		if err = client.Disconnect(ctx); err != nil {
-			panic(err)
-		}
-	}()
 
-	slapCollection := client.Database("bot").Collection("slaps")
+	slapCollection := database.Client.Database("bot").Collection("slaps")
 	fmt.Println(documentID)
 	objectID, _ := primitive.ObjectIDFromHex(documentID)
 	fmt.Println(objectID)
@@ -162,16 +128,10 @@ func DeleteSlapFromDb(documentID string) error {
 
 //AddSlapStickerToDb Adds a slap string to database
 func AddSlapStickerToDb(fileID string) error {
-	client, err := newClient()
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
-	err = client.Connect(ctx)
-	defer func() {
-		if err = client.Disconnect(ctx); err != nil {
-			panic(err)
-		}
-	}()
-	slapCollection := client.Database("bot").Collection("slapsstickers")
+
+	slapCollection := database.Client.Database("bot").Collection("slapsstickers")
 	var newslap = SlapSticker{FileID: fileID}
 	res, err := slapCollection.InsertOne(ctx, &newslap)
 	if err != nil {
@@ -185,18 +145,10 @@ func AddSlapStickerToDb(fileID string) error {
 
 //GetSlapStickers gets a random slap sticker from document
 func GetSlapStickers() (string, error) {
-	client, err := newClient()
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+
+	slapCollection := database.Client.Database("bot").Collection("slapsstickers")
 	defer cancel()
-	err = client.Connect(ctx)
-	defer func() {
-		if err = client.Disconnect(ctx); err != nil {
-			panic(err)
-		}
-	}()
-
-	slapCollection := client.Database("bot").Collection("slapsstickers")
-
 	slapArr, err := slapCollection.Aggregate(ctx, mongo.Pipeline{
 		{primitive.E{Key: "$sample", Value: bson.D{primitive.E{Key: "size", Value: 1}}}},
 	})
