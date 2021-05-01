@@ -7,6 +7,7 @@ import (
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
 	"github.com/rkrohk/gobot/helpers"
+	"github.com/rkrohk/gobot/helpers/slap"
 )
 
 //Returns slap string for inline "slap" query
@@ -24,24 +25,40 @@ func inlineSlap(update *tgbotapi.Update) string {
 //Inlinehandler handles inline queries
 func Inlinehandler(bot *tgbotapi.BotAPI, update *tgbotapi.Update) {
 
-	article := tgbotapi.NewInlineQueryResultArticleHTML("1", "¯\\_(ツ)_/¯", fmt.Sprintf("¯\\_(ツ)_/¯"))
-	article.Description = "¯\\_(ツ)_/¯"
+	var articles []interface{}
 
-	slapArticle := tgbotapi.NewInlineQueryResultArticleMarkdown("2", "Slap", inlineSlap(update))
-	slapArticle.Description = "Write the name of the person you want to slap"
+	query := update.InlineQuery.Query
+	query = strings.Trim(query, " ")
+
+	if query == "" {
+		//Shrug Article
+		article := tgbotapi.NewInlineQueryResultArticleHTML("Shrug", "¯\\_(ツ)_/¯", fmt.Sprintf("¯\\_(ツ)_/¯"))
+		article.Description = "¯\\_(ツ)_/¯"
+
+		articles = append(articles, article)
+
+		slapArticle := tgbotapi.NewInlineQueryResultArticleHTML("Slap", "Slap", "Slap")
+		slapArticle.Description = "Write the name of the person you want to slap"
+		articles = append(articles, slapArticle)
+	}
+
+	if strings.HasPrefix(query, "slap") {
+		slapArticles := slap.InlineSlap(update)
+		for _, v := range slapArticles {
+			articles = append(articles, v)
+		}
+	}
+
 	inlineConf := tgbotapi.InlineConfig{
 		InlineQueryID: update.InlineQuery.ID,
 		IsPersonal:    false,
 		CacheTime:     0,
-		Results:       []interface{}{article, slapArticle},
+		Results:       articles,
 	}
 
 	if _, err := bot.AnswerInlineQuery(inlineConf); err != nil {
 		log.Println("Error sending inline query answer")
 		log.Println(err)
-		inlineConf.Results = []interface{}{article}
-		if _, err := bot.AnswerInlineQuery(inlineConf); err != nil {
-			log.Println("Another Error", err)
-		}
+
 	}
 }
