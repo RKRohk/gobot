@@ -21,6 +21,7 @@ var err error
 var es7 *elasticsearch7.Client
 var logger *log.Logger
 var elasticSearchURL string = os.Getenv("ELASTICSEARCH_URL")
+var bonsaiURL string = os.Getenv("BONSAI_URL")
 
 //Document represents an elasticsearch document
 type Document struct {
@@ -31,7 +32,7 @@ type Document struct {
 
 func init() {
 	if len(elasticSearchURL) == 0 {
-		elasticSearchURL = "http://search:9200"
+		elasticSearchURL = bonsaiURL
 	}
 	cfg = elasticsearch7.Config{Addresses: []string{elasticSearchURL}}
 	es7, err = elasticsearch7.NewClient(cfg)
