@@ -1,3 +1,6 @@
 build:
   docker:
     bot: Dockerfile_heroku
+
+run:
+  bot: python rpcserver.py & bot
