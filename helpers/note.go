@@ -9,6 +9,7 @@ import (
 	"time"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
+	"github.com/rkrohk/gobot/database"
 	"github.com/rkrohk/gobot/helpers/note"
 	"github.com/rkrohk/gobot/helpers/search"
 	"go.mongodb.org/mongo-driver/bson"
@@ -21,6 +22,8 @@ func ExtractTag(message string) string {
 	reg := regexp.MustCompile("#\\w+")
 	return reg.FindString(message)
 }
+
+var client = database.Client
 
 //SaveNote saves a note
 func SaveNote(bot *tgbotapi.BotAPI, update *tgbotapi.Update) {
@@ -46,15 +49,9 @@ func SaveNote(bot *tgbotapi.BotAPI, update *tgbotapi.Update) {
 		return
 	}
 
-	client, err := newClient()
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
-	err = client.Connect(ctx)
-	defer func() {
-		if err = client.Disconnect(ctx); err != nil {
-			panic(err)
-		}
-	}()
+
 	notesCollection := client.Database("bot").Collection("notes")
 	log.Println(repliedToMessage)
 	var newNote note.Note
@@ -71,7 +68,7 @@ func SaveNote(bot *tgbotapi.BotAPI, update *tgbotapi.Update) {
 		newNote = note.Note{Tag: tag, MessageID: repliedToMessage.MessageID, MessageFromChatID: repliedToMessage.Chat.ID, Content: repliedToMessage.Text}
 	}
 	log.Println(newNote)
-	_, err = notesCollection.InsertOne(ctx, &newNote)
+	_, err := notesCollection.InsertOne(ctx, &newNote)
 	replyMessage := tgbotapi.NewMessage(update.Message.Chat.ID, "")
 	if err != nil {
 		log.Panic(err)
@@ -95,15 +92,9 @@ func GetNotes(bot *tgbotapi.BotAPI, update *tgbotapi.Update) {
 		return
 	}
 
-	client, err := newClient()
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
-	err = client.Connect(ctx)
-	defer func() {
-		if err = client.Disconnect(ctx); err != nil {
-			panic(err)
-		}
-	}()
+
 	notesCollection := client.Database("bot").Collection("notes")
 
 	var notes []note.Note
@@ -151,18 +142,12 @@ func DeleteNote(bot *tgbotapi.BotAPI, update *tgbotapi.Update) {
 		return
 	}
 
-	client, err := newClient()
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
-	err = client.Connect(ctx)
-	defer func() {
-		if err = client.Disconnect(ctx); err != nil {
-			panic(err)
-		}
-	}()
 
 	var note note.Note
 	var res *mongo.DeleteResult
+	var err error
 	notesCollection := client.Database("bot").Collection("notes")
 	if repliedToDocument != nil {
 		log.Println(repliedToDocument.FileID)
@@ -194,15 +179,6 @@ func DeleteNote(bot *tgbotapi.BotAPI, update *tgbotapi.Update) {
 
 func GetAllTags(bot *tgbotapi.BotAPI, update *tgbotapi.Update) {
 
-	client, err := newClient()
-	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
-	defer cancel()
-	err = client.Connect(ctx)
-	defer func() {
-		if err = client.Disconnect(ctx); err != nil {
-			panic(err)
-		}
-	}()
 	notesCollection := client.Database("bot").Collection("notes")
 
 	distinctTags, err := notesCollection.Distinct(context.Background(), "tag", bson.D{})
