@@ -12,7 +12,7 @@ COPY . .
 RUN CGO_ENABLED=0 go build -o /bin/bot
 
 
-FROM rkohk/chatbotapi as cbapi
+FROM rkrohk/chatbotapi as cbapi
 
 COPY --from=build /bin/bot /bin/bot
 
