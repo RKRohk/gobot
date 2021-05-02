@@ -3,4 +3,4 @@ build:
     bot: Dockerfile_heroku
 
 run:
-  bot: python rpcserver.py & bot
+  bot: "python rpcserver.py & bot"
