@@ -53,15 +53,15 @@ jobs:
           
       - name: Image digest
         run: echo ${{ steps.docker_build.outputs.digest }}
-  restart:
-    needs: docker
-    runs-on: ubuntu-latest
-    steps:      
-    - name: Killing Old Container and Setting up new one
-      uses: appleboy/ssh-action@master
-      with:
-        host: ${{ secrets.HOST }}
-        username: ${{ secrets.USERNAME }}
-        key: ${{ secrets.KEY }}
-        port: ${{ secrets.PORT }}
-        script: ~/restartbot.sh
+  # restart:
+  #   needs: docker
+  #   runs-on: ubuntu-latest
+  #   steps:      
+  #   - name: Killing Old Container and Setting up new one
+  #     uses: appleboy/ssh-action@master
+  #     with:
+  #       host: ${{ secrets.HOST }}
+  #       username: ${{ secrets.USERNAME }}
+  #       key: ${{ secrets.KEY }}
+  #       port: ${{ secrets.PORT }}
+  #       script: ~/restartbot.sh
