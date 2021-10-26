@@ -19,11 +19,7 @@ func Search(hashTag string, query string) []string {
             "attachment.content": "%s"
        		}
  		},
-    	"fields": [
-        	"fileID",
-        	"fileName"
-    	],
-    	"_source": "false"
+   		"_source": ["fileID","fileName"]
 	}`
 
 	searchBody = fmt.Sprintf(searchBody, query)
@@ -42,9 +38,7 @@ func Search(hashTag string, query string) []string {
 			logger.Println("Search response for ", hashTag, "\n", response)
 			fileIDs := make([]string, 0)
 			for _, hit := range res.Hits.Hits {
-				for _, fileID := range hit.Fields.FileID {
-					fileIDs = append(fileIDs, fileID)
-				}
+				fileIDs = append(fileIDs, hit.Source.FileID)
 			}
 			return fileIDs
 		}

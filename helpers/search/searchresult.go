@@ -22,11 +22,9 @@ type Result struct {
 			ID     string  `json:"_id"`
 			Score  float64 `json:"_score"`
 			Source struct {
+				FileName string `json:"fileName"`
+				FileID   string `json:"fileID"`
 			} `json:"_source"`
-			Fields struct {
-				FileName []string `json:"fileName"`
-				FileID   []string `json:"fileID"`
-			} `json:"fields"`
 		} `json:"hits"`
 	} `json:"hits"`
 }

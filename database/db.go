@@ -2,6 +2,7 @@ package database
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"os"
 	"time"
@@ -18,20 +19,28 @@ var (
 )
 
 func init() {
-	log.Println("Connecting to database",DATABASE_URI)
+	log.Println("Connecting to database", DATABASE_URI)
 	ctx, cancel = context.WithTimeout(context.Background(), 10*time.Second)
 	var err error
 
 	Client, err = mongo.NewClient(options.Client().ApplyURI(DATABASE_URI))
 
-	if err != nil {
-		log.Panic("Unable to connect to database, exiting ....")
+	for err != nil {
+		log.Printf("Error initializing mongodb client %v", err)
+		Client, err = mongo.NewClient(options.Client().ApplyURI(DATABASE_URI))
+		fmt.Println("Trying in 5 seconds")
+		time.Sleep(5 * time.Second)
 	}
 
 	err = Client.Connect(ctx)
-	if err != nil {
-		log.Panic("Error connecting to DB")
+	for err != nil {
+		err = Client.Connect(ctx)
+		fmt.Printf("Error connecting to mongodb %v", err)
+		fmt.Println("Trying in 5 seconds")
+		time.Sleep(5 * time.Second)
 	}
+
+	fmt.Println("Connected to mongodb")
 }
 
 func DisconnectDatabase() {
