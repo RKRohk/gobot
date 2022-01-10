@@ -73,6 +73,8 @@ func main() {
 					handler.Commandhandler(bot, update)
 				} else if middleware.HasSession(&update) {
 					middleware.Handle(bot, &update)
+				} else if update.Message.Text == "" && update.Message.Dice != nil {
+					go handler.DiceHandler(bot, &update)
 				} else if update.Message.Command() == "" && update.Message != nil && update.Message.Text != "" {
 					if update.Message.Chat.IsPrivate() || strings.Contains(update.Message.Text, "Gora") || (update.Message.ReplyToMessage != nil && update.Message.ReplyToMessage.From.FirstName == bot.Self.FirstName) {
 						if update.Message.From.ID == blockedUser {
@@ -85,6 +87,7 @@ func main() {
 						helpers.SendMessage(update.Message.Text)
 					}
 				}
+
 			} else if query := update.CallbackQuery; query != nil {
 				log.Printf("CallbackQuery %s", query.Data)
 				handler.CallbackQueryHandler(bot, &update)
