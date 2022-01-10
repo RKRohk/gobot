@@ -5,7 +5,7 @@ import (
 	"log"
 	"strings"
 
-	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
+	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"github.com/rkrohk/gobot/helpers"
 	"github.com/rkrohk/gobot/helpers/slap"
 )
@@ -56,9 +56,8 @@ func Inlinehandler(bot *tgbotapi.BotAPI, update *tgbotapi.Update) {
 		Results:       articles,
 	}
 
-	if _, err := bot.AnswerInlineQuery(inlineConf); err != nil {
+	if _, err := bot.Send(inlineConf); err != nil {
 		log.Println("Error sending inline query answer")
 		log.Println(err)
-
 	}
 }

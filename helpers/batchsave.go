@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"log"
 
-	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
+	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"github.com/rkrohk/gobot/helpers/middleware"
 	"github.com/rkrohk/gobot/helpers/note"
 )

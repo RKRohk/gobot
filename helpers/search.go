@@ -4,7 +4,7 @@ import (
 	"log"
 	"strings"
 
-	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
+	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"github.com/rkrohk/gobot/helpers/search"
 )
 
@@ -21,7 +21,8 @@ func Search(bot *tgbotapi.BotAPI, update *tgbotapi.Update) {
 	fileIDs := search.Search(hashTag, query)
 
 	for _, id := range fileIDs {
-		fileSendConfig := tgbotapi.NewDocumentShare(update.Message.Chat.ID, id)
+		document := tgbotapi.FileID(id)
+		fileSendConfig := tgbotapi.NewDocument(update.Message.Chat.ID, document)
 		bot.Send(fileSendConfig)
 	}
 

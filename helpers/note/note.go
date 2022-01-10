@@ -6,7 +6,7 @@ import (
 	"os"
 	"time"
 
-	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
+	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"github.com/rkrohk/gobot/database"
 	"github.com/rkrohk/gobot/helpers/search"
 	"go.mongodb.org/mongo-driver/bson"

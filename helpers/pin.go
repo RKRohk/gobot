@@ -4,7 +4,7 @@ import (
 	"log"
 	"strings"
 
-	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
+	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 )
 
 //Pin function pins a message
@@ -23,7 +23,7 @@ func Pin(bot *tgbotapi.BotAPI, update *tgbotapi.Update) {
 	}
 
 	pinMessageConfig := tgbotapi.PinChatMessageConfig{ChatID: message.Chat.ID, MessageID: repliedToMessage.MessageID, DisableNotification: silent}
-	_, err := bot.PinChatMessage(pinMessageConfig)
+	_, err := bot.Send(pinMessageConfig)
 	if err != nil {
 		replyMessage.Text = "There was an error pinning the message"
 		go bot.Send(replyMessage)
@@ -39,6 +39,6 @@ func Unpin(bot *tgbotapi.BotAPI, update *tgbotapi.Update) {
 		replyMessage.Text = "Please reply to a message"
 	} else {
 		unpinMessageConfig := tgbotapi.UnpinChatMessageConfig{ChatID: message.Chat.ID}
-		go bot.UnpinChatMessage(unpinMessageConfig)
+		go bot.Send(unpinMessageConfig)
 	}
 }

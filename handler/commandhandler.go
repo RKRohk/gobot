@@ -7,7 +7,7 @@ import (
 	"github.com/rkrohk/gobot/helpers"
 	"github.com/rkrohk/gobot/helpers/middleware"
 
-	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
+	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 )
 
 //Commandhandler handles bot commands

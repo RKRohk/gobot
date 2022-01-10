@@ -1,6 +1,6 @@
 package middleware
 
-import tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
+import tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 
 func Handle(bot *tgbotapi.BotAPI, update *tgbotapi.Update) {
 	currentSession := session[UserChatID(update.Message.Chat.ID)]

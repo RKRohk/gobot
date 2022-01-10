@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"log"
 
-	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
+	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 )
 
 //Slap takes two users as argument and slaps one
@@ -83,7 +83,8 @@ func SlapWithSticker(bot *tgbotapi.BotAPI, update *tgbotapi.Update) {
 	if err != nil {
 		bot.Send(tgbotapi.NewMessage(update.Message.Chat.ID, "I don't feel like slapping today"))
 	} else {
-		sticker := tgbotapi.NewStickerShare(update.Message.Chat.ID, fileID)
+		stickerFile := tgbotapi.FileID(fileID)
+		sticker := tgbotapi.NewSticker(update.Message.Chat.ID, stickerFile)
 		sticker.ReplyToMessageID = repliedToMessage.MessageID
 		bot.Send(sticker)
 	}
