@@ -1,6 +1,6 @@
 package helpers
 
-import tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
+import tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 
 func MakePDF(bot *tgbotapi.BotAPI, update *tgbotapi.Update) {
 
@@ -12,7 +12,7 @@ func MakePDF(bot *tgbotapi.BotAPI, update *tgbotapi.Update) {
 		endMessageID := update.Message.MessageID - 1
 
 		for i := startMessageID; i <= endMessageID; i++ {
-			
+
 		}
 
 	} else {

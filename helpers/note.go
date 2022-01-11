@@ -8,7 +8,7 @@ import (
 	"regexp"
 	"time"
 
-	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
+	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"github.com/rkrohk/gobot/database"
 	"github.com/rkrohk/gobot/helpers/note"
 	"github.com/rkrohk/gobot/helpers/search"
@@ -118,7 +118,8 @@ func GetNotes(bot *tgbotapi.BotAPI, update *tgbotapi.Update) {
 	}
 	for _, note := range notes {
 		if note.FileID != "" {
-			documentShare := tgbotapi.NewDocumentShare(update.Message.Chat.ID, note.FileID)
+			note := tgbotapi.FileID(note.FileID)
+			documentShare := tgbotapi.NewDocument(update.Message.Chat.ID, note)
 			documentShare.DisableNotification = true
 			if _, err := bot.Send(documentShare); err != nil {
 				log.Println("Error sending file for ", tag, "\n", err)

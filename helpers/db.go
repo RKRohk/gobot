@@ -100,7 +100,7 @@ func GetSlapStrings() (string, error) {
 	log.Printf("Decode function has been run")
 
 	if error != nil {
-		log.Panic(error)
+		log.Println(error)
 		return "", error
 	}
 	log.Println(result)
@@ -171,6 +171,9 @@ func GetSlapStickers() (string, error) {
 	}
 	log.Println(result)
 
+	if len(result) == 0 {
+		return "", fmt.Errorf("no sticker slaps present. Please add one")
+	}
 	return result[0].FileID, nil
 
 }

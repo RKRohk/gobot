@@ -14,12 +14,12 @@ import (
 	"github.com/rkrohk/gobot/helpers/ai"
 	"github.com/rkrohk/gobot/helpers/middleware"
 
-	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
+	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 )
 
 var bot *tgbotapi.BotAPI
 var err error
-var blockedUser int
+var blockedUser int64
 var owner int
 
 func init() {
@@ -33,7 +33,7 @@ func init() {
 		log.Fatal("Unable to read owner user")
 	}
 
-	if blockedUser, err = strconv.Atoi(os.Getenv("BLOCKED_USER")); err != nil {
+	if blockedUser, err = strconv.ParseInt(os.Getenv("BLOCKED_USER"), 10, 64); err != nil {
 		log.Fatal("Unable to read blocked user")
 	} else {
 		log.Println("Blocked user is", blockedUser)
@@ -60,7 +60,7 @@ func main() {
 	u := tgbotapi.NewUpdate(0)
 	u.Timeout = 60
 	go func() {
-		updates, err := bot.GetUpdatesChan(u)
+		updates := bot.GetUpdatesChan(tgbotapi.NewUpdate(0))
 
 		if err != nil {
 			log.Fatal("There was an error getting updates")
@@ -73,6 +73,8 @@ func main() {
 					handler.Commandhandler(bot, update)
 				} else if middleware.HasSession(&update) {
 					middleware.Handle(bot, &update)
+				} else if update.Message.Text == "" && update.Message.Dice != nil {
+					go handler.DiceHandler(bot, &update)
 				} else if update.Message.Command() == "" && update.Message != nil && update.Message.Text != "" {
 					if update.Message.Chat.IsPrivate() || strings.Contains(update.Message.Text, "Gora") || (update.Message.ReplyToMessage != nil && update.Message.ReplyToMessage.From.FirstName == bot.Self.FirstName) {
 						if update.Message.From.ID == blockedUser {
@@ -85,6 +87,7 @@ func main() {
 						helpers.SendMessage(update.Message.Text)
 					}
 				}
+
 			} else if query := update.CallbackQuery; query != nil {
 				log.Printf("CallbackQuery %s", query.Data)
 				handler.CallbackQueryHandler(bot, &update)
